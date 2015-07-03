@@ -19,7 +19,7 @@ class BankService
   def self.bank_status(time_to_check)
     # If today falls on a weekend, return an error
     if time_to_check.saturday? || time_to_check.sunday?
-      return BankStatusResponse.new(open: false, message: WEEKEND_ERROR_MESSAGE)
+      return BankStatusResponse.new(closed: true, message: WEEKEND_ERROR_MESSAGE)
     end
 
     # Get any holiday names today
@@ -35,12 +35,12 @@ class BankService
 
     # If any applicable holidays exist today, banks are closed.
     if (holidays_today & HOLIDAYS_TO_OBSERVE).any?
-      return BankStatusResponse.new(open: false, message: message_for_holidays(holidays_today))
+      return BankStatusResponse.new(closed: true, message: message_for_holidays(holidays_today))
     end
 
     # It's safe to assume that banks are open at this point
     # Return a response to that effect
-    BankStatusResponse.new(open: true, message: BANKS_ARE_OPEN_MESSAGE)
+    BankStatusResponse.new(closed: false, message: BANKS_ARE_OPEN_MESSAGE)
   end
 
   def self.get_applicable_holiday_names_for_day(day)
@@ -56,10 +56,10 @@ class BankService
   end
 
   class BankStatusResponse
-    attr_accessor :open, :message
+    attr_accessor :closed, :message
 
     def initialize(options = {})
-      @open = options[:open]
+      @closed = options[:closed]
       @message = options[:message]
     end
   end
