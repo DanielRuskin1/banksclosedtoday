@@ -1,0 +1,23 @@
+<div id="wrapper">
+  <div id="header"></div>
+
+  <div id="content">
+    <div class="banks-open-question">
+      <strong>Are US banks closed today?</strong>
+    </div>
+
+    <div class="banks-open-status">
+      <strong><%= @bank_status.open ? "No." : "Yes." %></strong>
+      <%= @bank_status.message %>
+    </div>
+  </div>
+
+  <div id="footer">
+    <center>
+      <div>
+        <strong>Bank statuses are provided on a best-effort basis only, and are not guaranteed.  Some banks may not follow standard scheduling.</strong>
+      </div>
+      Made by <%= link_to("druskin.co", "https://www.druskin.co") %>.
+    </center>
+  </div>
+</div>
