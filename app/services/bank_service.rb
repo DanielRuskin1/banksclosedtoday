@@ -1,20 +1,20 @@
 class BankService
   HOLIDAYS_TO_OBSERVE = [
     "New Year's Day",
-    "Martin Luther King, Jr. Day",
+    'Martin Luther King, Jr. Day',
     "Presidents' Day",
-    "Memorial Day",
-    "Independence Day",
-    "Labor Day",
-    "Columbus Day",
-    "Veterans Day",
-    "Thanksgiving",
-    "Christmas Day",
-    "Inauguration Day",
+    'Memorial Day',
+    'Independence Day',
+    'Labor Day',
+    'Columbus Day',
+    'Veterans Day',
+    'Thanksgiving',
+    'Christmas Day',
+    'Inauguration Day'
   ]
 
-  BANKS_ARE_OPEN_MESSAGE = "Banks are open today."
-  WEEKEND_ERROR_MESSAGE = "Banks are closed as today is not a weekday."
+  BANKS_ARE_OPEN_MESSAGE = 'Most banks are open today.'
+  WEEKEND_ERROR_MESSAGE = 'Most banks are closed as today is not a weekday.'
 
   def self.bank_status(time_to_check)
     # If today falls on a weekend, return an error
@@ -49,10 +49,10 @@ class BankService
 
   def self.message_for_holidays(holiday_names)
     # Get pluralized holiday word
-    holiday_word = "holiday".pluralize(holiday_names.count)
+    holiday_word = 'holiday'.pluralize(holiday_names.count)
 
     # Create message
-    "Banks are closed today due to the following #{holiday_word}: #{holiday_names.to_sentence}."
+    "Most banks are closed today due to the following #{holiday_word}: #{holiday_names.to_sentence}."
   end
 
   class BankStatusResponse
