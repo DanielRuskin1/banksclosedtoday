@@ -1,0 +1,7 @@
+# Fake unobserved holiday for testing purposes
+---
+months:
+  1:
+  - name: Daniel Day
+    regions: [us]
+    mday: 12
