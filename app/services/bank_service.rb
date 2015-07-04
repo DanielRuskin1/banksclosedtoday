@@ -48,11 +48,8 @@ class BankService
   end
 
   def self.message_for_holidays(holiday_names)
-    # Get pluralized holiday word
-    holiday_word = 'holiday'.pluralize(holiday_names.count)
-
     # Create message
-    "Most banks are closed today due to the following #{holiday_word}: #{holiday_names.to_sentence}."
+    "Most banks are closed today for #{holiday_names.to_sentence}."
   end
 
   class BankStatusResponse
