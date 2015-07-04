@@ -14,7 +14,7 @@ describe 'bank holidays', type: :feature do
       expect(page).to have_content('Most banks are closed today for Thanksgiving.')
     end
 
-    it "should handle simultaneous holidays correctly" do
+    it 'should handle simultaneous holidays correctly' do
       # Import sample unobserved holiday
       Holidays.load_custom(File.join(File.dirname(__FILE__), '../fixtures/holiday_definitions/holidays_coinciding_with_thanksgiving.yaml'))
 
