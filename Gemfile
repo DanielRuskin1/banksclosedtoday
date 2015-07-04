@@ -18,9 +18,6 @@ group :development, :test do
   gem 'rubocop'
 end
 
-# JQuery
-gem 'jquery-rails'
-
 # Allows for simple holiday detection; used in BankService#bank_status
 gem 'holidays', '2.2.0'
 
