@@ -15,7 +15,6 @@ gem 'newrelic_rpm', '3.12.1.298'
 # GEOIP lookup
 gem 'geoip', '1.4.0'
 
-
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do
@@ -33,9 +32,21 @@ group :assets do
 end
 
 group :development, :test do
+  # Time management lib
+  gem 'timecop'
+
+  # Ruby style enforcement
+  gem 'rubocop'
+end
+
+group :test do
+  # Testing library
+  gem 'rspec-rails'
+
+  # Feature test libraries
   gem 'poltergeist'
   gem 'capybara'
-  gem 'rspec-rails'
-  gem 'timecop'
-  gem 'rubocop'
+
+  # Test mocking library
+  gem 'webmock'
 end

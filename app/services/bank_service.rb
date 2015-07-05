@@ -1,10 +1,14 @@
 class BankService
   SUPPORTED_COUNTRIES = {
-    "US" => "United States",
+    'US' => 'United States'
   }
 
-  BANKS_ARE_OPEN_MESSAGE = 'Most banks are open today.'
-  WEEKEND_ERROR_MESSAGE = 'Most banks are closed as today is not a weekday.'
+  SUPPORTED_COUNTRY_BANK_SERVICES = {
+    'US' => UsBankService
+  }
+
+  # Closure reason constants
+  WEEKEND_CLOSURE_REASON = 'the weekend'
 
   # Base exception class for BankService errors
   class BankServiceError < StandardError; end
@@ -14,28 +18,58 @@ class BankService
 
   ###
   # Method to get the correct BankService for a given country.
-  # The supported countries here should mirror the SUPPORTED_COUNTRIES constant.
-  def self.get_service_for_country(country)
-    case country
-    when "US"
-      UsBankService
+  # Uses the SUPPORTED_COUNTRIES and SUPPORTED_COUNTRY_BANK_SERVICES constants.
+  def self.get_service_for_country(country_code)
+    if SUPPORTED_COUNTRIES[country_code]
+      SUPPORTED_COUNTRY_BANK_SERVICES[country_code]
     else
-      raise UnsupportedCountryError
+      fail UnsupportedCountryError
     end
+  end
+
+  # Returns the country for this BankService.
+  def self.country_code
+    SUPPORTED_COUNTRY_BANK_SERVICES.invert[self]
+  end
+
+  ###
+  # Method to get the schedule used to determine bank statuses; returns a BankSchedule.
+  # This is only implemented in subclasses.
+  def self.bank_schedule
+    fail NotImplementedError
   end
 
   ###
   # The time to use them determining the bank status, taking into account the correct time zone.
   # This is only implemented in subclasses.
   def self.time_to_check
-    raise NotImplementedError
+    fail NotImplementedError
   end
 
   ###
   # Method to get the current bank's status; returns a BankStatusResponse.
   # This is only implemented in subclasses.
   def self.bank_status
-    raise NotImplementedError
+    fail NotImplementedError
+  end
+
+  def self.banks_open_status_message
+    "Most #{country_code} banks are open."
+  end
+
+  def self.bank_closed_status_message(reason)
+    "Most #{country_code} banks are closed because of #{reason}."
+  end
+
+  # Response container for the bank_schedule_used method.
+  class BankSchedule
+    attr_accessor :country_code, :name, :link
+
+    def initialize(options = {})
+      @country_code = options[:country_code]
+      @name = options[:name]
+      @link = options[:link]
+    end
   end
 
   # Response container for the bank_status method.

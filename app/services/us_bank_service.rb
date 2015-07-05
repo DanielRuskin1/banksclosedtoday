@@ -1,4 +1,7 @@
 class UsBankService < BankService
+  US_BANK_SCHEDULE_NAME = 'Federal Reserve Bank'
+  US_BANK_SCHEDULE_LINK = 'http://www.federalreserve.gov/aboutthefed/k8.htm'
+
   HOLIDAYS_TO_OBSERVE = [
     "New Year's Day",
     'Martin Luther King, Jr. Day',
@@ -13,18 +16,19 @@ class UsBankService < BankService
     'Inauguration Day'
   ]
 
-  BANKS_ARE_OPEN_MESSAGE = 'Most banks are open today.'
-  WEEKEND_ERROR_MESSAGE = 'Most banks are closed as today is not a weekday.'
+  def self.bank_schedule
+    BankSchedule.new(country_code: country_code, name: US_BANK_SCHEDULE_NAME, link: US_BANK_SCHEDULE_LINK)
+  end
 
   # The Eastern time zone should be used.
   def self.time_to_check
-    DateTime.now.in_time_zone("Eastern Time (US & Canada)")
+    DateTime.now.in_time_zone('Eastern Time (US & Canada)')
   end
 
   def self.bank_status
     # If today falls on a weekend, return an error
     if time_to_check.saturday? || time_to_check.sunday?
-      return BankStatusResponse.new(closed: true, message: WEEKEND_ERROR_MESSAGE)
+      return BankStatusResponse.new(closed: true, message: bank_closed_status_message(WEEKEND_CLOSURE_REASON))
     end
 
     # Get any holiday names today
@@ -40,20 +44,15 @@ class UsBankService < BankService
 
     # If any applicable holidays exist today, banks are closed.
     if (holidays_today & HOLIDAYS_TO_OBSERVE).any?
-      return BankStatusResponse.new(closed: true, message: message_for_holidays(holidays_today))
+      return BankStatusResponse.new(closed: true, message: bank_closed_status_message(holidays_today.to_sentence))
     end
 
     # It's safe to assume that banks are open at this point
     # Return a response to that effect
-    BankStatusResponse.new(closed: false, message: BANKS_ARE_OPEN_MESSAGE)
+    BankStatusResponse.new(closed: false, message: banks_open_status_message)
   end
 
   def self.get_applicable_holiday_names_for_day(day)
     day.holidays(:us, :us_dc).map { |holiday| holiday[:name] }.compact.uniq
-  end
-
-  def self.message_for_holidays(holiday_names)
-    # Create message
-    "Most banks are closed today for #{holiday_names.to_sentence}."
   end
 end

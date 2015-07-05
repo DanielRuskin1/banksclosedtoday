@@ -1,9 +1,9 @@
 class UserCountryService
   # Service to use for GEOIP lookups
-  GEOIP_SERVICE_URL = "http://api.hostip.info/country.php?ip=%s"
+  GEOIP_SERVICE_URL = 'http://api.hostip.info/country.php?ip=%s'
 
   # Country code that, if received by the HostIP.info service, indicates a malformed request
-  HOSTIP_INVALID_COUNTRY_CODE = "XX"
+  HOSTIP_INVALID_COUNTRY_CODE = 'XX'
 
   # Base exception class for UserCountryService errors
   class UserCountryServiceError < StandardError; end
@@ -37,21 +37,21 @@ class UserCountryService
   # Other error types will be raised.
   def self.country_for_ip(remote_ip)
     # remote_ip cannot be blank
-    raise NoRemoteIpError unless remote_ip.present?
+    fail NoRemoteIpError unless remote_ip.present?
 
     # Generate URL
     uri_to_request = URI.parse(GEOIP_SERVICE_URL % remote_ip)
 
     # Run request
-    country = Timeout::timeout(5) do
+    country_code = Timeout.timeout(5) do
       Net::HTTP.get_response(uri_to_request).body
     end
 
     # Raise here if the returned country code indicates a malformed reuest
-    raise ReceivedBadCountryError if country == HOSTIP_INVALID_COUNTRY_CODE
+    fail ReceivedBadCountryError if country_code == HOSTIP_INVALID_COUNTRY_CODE
 
     # Return country
-    CountryStatusResponse.new(success: true, country: country)
+    CountryStatusResponse.new(success: true, country_code: country_code)
   rescue *EXPECTED_ERRORS_TO_RESCUE => e
     # Notify Rollbar for tracking purposes
     Rollbar.error(e)
@@ -61,11 +61,11 @@ class UserCountryService
   end
 
   class CountryStatusResponse
-    attr_accessor :success, :country
+    attr_accessor :success, :country_code
 
     def initialize(options = {})
       @success = options[:success]
-      @country = options[:country]
+      @country_code = options[:country_code]
     end
   end
 end

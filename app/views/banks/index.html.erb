@@ -4,8 +4,8 @@
   <div id="content">
     <div class="large-header large-header-with-padding">
       <strong>
-        <% if @bank_status %>
-          Are <%= @country %> banks closed today?
+        <% if @bank_status && @bank_schedule %>
+          Are <%= @bank_schedule.country_code %> banks closed today?
         <% else %>
           <% case @error %>
           <% when :no_country %>
@@ -18,7 +18,7 @@
     </div>
 
     <div class="large-header">
-      <% if @bank_status %>
+      <% if @bank_status && @bank_schedule %>
         <strong><%= @bank_status.closed ? "Yes." : "No." %></strong>
         <%= @bank_status.message %>
       <% else %>
@@ -37,7 +37,10 @@
     <center>
       <strong>
         <div>Bank statuses are provided on a best-effort basis only, and are not guaranteed.</div>
-        <div>The <%= link_to("Federal Reserve schedule", "http://www.federalreserve.gov/aboutthefed/k8.htm") %> is used to determine bank statuses.  Some banks may not adhere to this schedule.</div>
+
+        <% if @bank_schedule %>
+          <div>The <%= link_to(@bank_schedule.name, @bank_schedule.link) %> schedule is used to determine <%= @bank_schedule.country_code %> bank statuses.  Some banks may not adhere to this schedule.</div>
+        <% end %>
       </strong>
       Made by <%= render("shared/creator_email") %>.
     </center>

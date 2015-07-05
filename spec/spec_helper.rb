@@ -19,20 +19,35 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 ENV['RAILS_ENV'] ||= 'test'
 
+# Env files
 require File.expand_path('../../config/environment', __FILE__)
+
+# Test library files
 require 'rspec/rails'
 require 'capybara/rails'
 require 'capybara/rspec'
 require 'capybara/poltergeist'
 require 'rack/test'
 
+# Time management lib
 require 'timecop'
 
+# Webmock setup
+require 'webmock/rspec'
+WebMock.disable_net_connect!(allow_localhost: true)
+
+# Require any support files (e.g. stub helpers)
+Dir["#{Rails.root}/spec/support/**/*.rb"].sort.each do |f|
+  require f
+end
+
+# Capybara setup
 Capybara.configure do |c|
   c.javascript_driver = :poltergeist
   c.default_driver = :poltergeist
 end
 
+# Rspec setup
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
