@@ -8,7 +8,7 @@ describe 'weekends', :feature do
 
     it 'should show bank-closed messaging on Saturday' do
       # Go to Saturday
-      Timecop.travel(Time.parse('July 11, 2015').in_time_zone("Eastern Time (US & Canada)"))
+      Timecop.travel(Time.parse('July 11, 2015').in_time_zone('Eastern Time (US & Canada)'))
 
       # Go to banks#index page
       visit root_path
@@ -19,7 +19,7 @@ describe 'weekends', :feature do
 
     it 'should show bank-closed messaging on Sunday' do
       # Go to Sunday
-      Timecop.travel(Time.parse('July 12, 2015').in_time_zone("Eastern Time (US & Canada)"))
+      Timecop.travel(Time.parse('July 12, 2015').in_time_zone('Eastern Time (US & Canada)'))
 
       # Go to banks#index page
       visit root_path
@@ -30,7 +30,7 @@ describe 'weekends', :feature do
 
     it 'should not show bank-closed messaging on other days' do
       # Go to Monday
-      Timecop.travel(Time.parse('July 13, 2015').in_time_zone("Eastern Time (US & Canada)"))
+      Timecop.travel(Time.parse('July 13, 2015').in_time_zone('Eastern Time (US & Canada)'))
 
       # Go to banks#index page
       visit root_path
