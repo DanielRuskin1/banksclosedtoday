@@ -12,12 +12,23 @@ gem 'holidays', '2.2.0'
 # NewRelic site monitoring
 gem 'newrelic_rpm', '3.12.1.298'
 
+# GEOIP lookup
+gem 'geoip', '1.4.0'
+
 
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do
+  # Asset compiliation
   gem 'sass-rails'
 
+  # JQuery
+  gem 'jquery-rails'
+
+  # Coffeescript
+  gem 'coffee-rails'
+
+  # JS uglifier/minimizer
   gem 'uglifier'
 end
 

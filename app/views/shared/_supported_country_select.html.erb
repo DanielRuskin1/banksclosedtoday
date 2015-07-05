@@ -1,0 +1,3 @@
+<%= form_tag root_path, method: :get, id: "country_select_form" do %>
+  <%= select_tag "country", options_for_select({"" => ""}.merge(BankService::SUPPORTED_COUNTRIES.invert), "") %>
+<% end %>

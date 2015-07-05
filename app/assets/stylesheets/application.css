@@ -36,12 +36,11 @@ body {
   left:0;
 }
 
-.banks-open-question,
-.banks-open-status {
+.large-header {
   text-align: center;
   font-size: 30px;
 }
 
-.banks-open-question {
+.large-header-with-padding {
   padding-top: 10%;
 }

@@ -2,13 +2,34 @@
   <div id="header"></div>
 
   <div id="content">
-    <div class="banks-open-question">
-      <strong>Are US banks closed today?</strong>
+    <div class="large-header large-header-with-padding">
+      <strong>
+        <% if @bank_status %>
+          Are <%= @country %> banks closed today?
+        <% else %>
+          <% case @error %>
+          <% when :no_country %>
+            We weren't able to figure out where you are in the world.
+          <% when :unsupported_country %>
+            Unfortunately, your country isn't supported at this time.
+          <% end %>
+        <% end %>
+      </strong>
     </div>
 
-    <div class="banks-open-status">
-      <strong><%= @bank_status.closed ? "Yes." : "No." %></strong>
-      <%= @bank_status.message %>
+    <div class="large-header">
+      <% if @bank_status %>
+        <strong><%= @bank_status.closed ? "Yes." : "No." %></strong>
+        <%= @bank_status.message %>
+      <% else %>
+        <% case @error %>
+        <% when :no_country %>
+          Can you tell us? <%= render("shared/supported_country_select") %>
+        <% when :unsupported_country %>
+          <div>Email <%= render("shared/creator_email", link_text: "us") %> and request support!</div>
+          Or try a different country? <%= render("shared/supported_country_select") %>
+        <% end %>
+      <% end %>
     </div>
   </div>
 
@@ -18,7 +39,7 @@
         <div>Bank statuses are provided on a best-effort basis only, and are not guaranteed.</div>
         <div>The <%= link_to("Federal Reserve schedule", "http://www.federalreserve.gov/aboutthefed/k8.htm") %> is used to determine bank statuses.  Some banks may not adhere to this schedule.</div>
       </strong>
-      Made by <%= link_to("druskin.co", "https://www.druskin.co") %>.
+      Made by <%= render("shared/creator_email") %>.
     </center>
   </div>
 </div>
