@@ -61,8 +61,8 @@ describe 'country selection', type: :feature do
       end
     end
 
-    context "when Javascript is not enabled" do
-      it "should do the same thing, but with a manual form submit" do
+    context 'when Javascript is not enabled' do
+      it 'should do the same thing, but with a manual form submit' do
         # Stub GEOIP with unsupported country
         stub_geoip_lookup('NL')
 
@@ -82,7 +82,7 @@ describe 'country selection', type: :feature do
         select('United States', from: 'country')
 
         # Manually submit form
-        click_button("Go!")
+        click_button('Go!')
 
         # Make sure correct messaging is shown
         expect_open_us_day
@@ -119,8 +119,8 @@ describe 'country selection', type: :feature do
       end
     end
 
-    context "when Javascript is not enabled" do
-      it "should do the same thing, but with a manual form submit" do
+    context 'when Javascript is not enabled' do
+      it 'should do the same thing, but with a manual form submit' do
         # Stub GEOIP with non-existant country
         stub_geoip_lookup('XX')
 
@@ -140,7 +140,7 @@ describe 'country selection', type: :feature do
         select('United States', from: 'country')
 
         # Manually submit form
-        click_button("Go!")
+        click_button('Go!')
 
         # Make sure correct messaging is shown
         expect_open_us_day
