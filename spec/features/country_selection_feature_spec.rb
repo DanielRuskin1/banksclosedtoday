@@ -15,6 +15,20 @@ describe 'country selection', type: :feature do
     expect_open_us_day
   end
 
+  it 'should not care about case' do
+    # Make sure GEOIP is not attempted
+    expect_no_geoip
+
+    # Go to normal day
+    Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
+
+    # Go to page with country param
+    visit root_path(country: 'us')
+
+    # Make sure correct messaging is shown
+    expect_open_us_day
+  end
+
   it 'should use GEOIP lookup otherwise and show correct messaging' do
     # Stub GEOIP
     stub_geoip_lookup('US')

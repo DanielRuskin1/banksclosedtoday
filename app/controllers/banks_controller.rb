@@ -1,7 +1,7 @@
 class BanksController < ApplicationController
   def index
     # Default country should be the user's country param
-    country_code = params[:country]
+    country_code = params[:country].upcase if params[:country].is_a?(String)
 
     # If a country param was not passed in, query for one based on the IP
     unless country_code.present?
