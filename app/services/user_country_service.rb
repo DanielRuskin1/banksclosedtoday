@@ -43,7 +43,7 @@ class UserCountryService
     uri_to_request = URI.parse(GEOIP_SERVICE_URL % remote_ip)
 
     # Run request
-    country_code = Timeout.timeout(5) do
+    country_code = Timeout.timeout(1) do
       Net::HTTP.get_response(uri_to_request).body
     end
 
