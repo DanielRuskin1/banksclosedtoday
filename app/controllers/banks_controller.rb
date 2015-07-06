@@ -4,7 +4,7 @@ class BanksController < ApplicationController
     country_code = params[:country]
 
     # If a country param was not passed in, query for one based on the IP
-    unless country_code
+    unless country_code.present?
       # Query
       country_response = UserCountryService.country_for_ip(request.remote_ip)
 

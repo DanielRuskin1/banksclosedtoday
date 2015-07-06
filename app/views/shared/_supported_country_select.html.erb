@@ -1,3 +1,8 @@
-<%= form_tag root_path, method: :get, id: "country_select_form" do %>
-  <%= select_tag "country", options_for_select({"" => ""}.merge(BankService::SUPPORTED_COUNTRIES.invert), "") %>
+<%= form_tag root_path, method: :get, id: "country_form" do %>
+  <%# Dropdown for country.  The form will auto-submit once this is changed %>
+  <%# (see assets/javascripts/views/banks/index.js.coffee) %>
+  <%= select_tag("country", options_for_select(supported_country_select_options, nil), id: "country_form_select") %>
+
+  <%# If Javascript is disabled, the auto-submit won't work - so we need to display a submit button. %>
+  <%= submit_tag("Go!", name: nil, id: "country_form_submit") %>
 <% end %>

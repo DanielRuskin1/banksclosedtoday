@@ -44,7 +44,6 @@ end
 # Capybara setup
 Capybara.configure do |c|
   c.javascript_driver = :poltergeist
-  c.default_driver = :poltergeist
 end
 
 # Rspec setup

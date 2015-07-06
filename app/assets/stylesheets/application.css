@@ -18,11 +18,13 @@ body {
   height:100%;
 }
 
+/*
+* Page wrapper classes
+*/
 #wrapper {
   min-height:100%;
   position:relative;
 }
-
 #header {
 }
 #content {
@@ -36,11 +38,19 @@ body {
   left:0;
 }
 
-.large-header {
-  text-align: center;
+/*
+* Text classes
+*/
+.top-header {
+  padding-top: 10%;
+}
+
+.primary-text,
+.secondary-text {
   font-size: 30px;
 }
 
-.large-header-with-padding {
-  padding-top: 10%;
+.try-another-country-prompt {
+  font-size: 20px;
+  padding-top: 2%;
 }

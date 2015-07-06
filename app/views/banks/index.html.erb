@@ -2,46 +2,69 @@
   <div id="header"></div>
 
   <div id="content">
-    <div class="large-header large-header-with-padding">
-      <strong>
+    <%# Primary content, top header.  This is the question if a lookup succeeded, or the primary error. %>
+    <div class="primary-text top-header">
+      <center>
+        <strong>
+          <% if @bank_status && @bank_schedule %>
+            Are <%= @bank_schedule.country_code %> banks closed today?
+          <% else %>
+            <% case @error %>
+            <% when :no_country %>
+              We weren't able to figure out where you are in the world.
+            <% when :unsupported_country %>
+              Unfortunately, your country isn't supported at this time.
+            <% end %>
+          <% end %>
+        </strong>
+      </center>
+    </div>
+
+    <%# Secondary content.  The answer to the question if the lookup succeeded, or a secondary error message. %>
+    <div class="secondary-text">
+      <center>
         <% if @bank_status && @bank_schedule %>
-          Are <%= @bank_schedule.country_code %> banks closed today?
+          <strong><%= @bank_status.closed ? "Yes." : "No." %></strong>
+          <%= @bank_status.message %>
         <% else %>
           <% case @error %>
           <% when :no_country %>
-            We weren't able to figure out where you are in the world.
+            Can you tell us?
           <% when :unsupported_country %>
-            Unfortunately, your country isn't supported at this time.
+            Email <%= render("shared/creator_email", link_text: "us") %> and request support!
           <% end %>
         <% end %>
-      </strong>
+      </center>
     </div>
 
-    <div class="large-header">
-      <% if @bank_status && @bank_schedule %>
-        <strong><%= @bank_status.closed ? "Yes." : "No." %></strong>
-        <%= @bank_status.message %>
-      <% else %>
-        <% case @error %>
-        <% when :no_country %>
-          Can you tell us? <%= render("shared/supported_country_select") %>
-        <% when :unsupported_country %>
-          <div>Email <%= render("shared/creator_email", link_text: "us") %> and request support!</div>
-          Or try a different country? <%= render("shared/supported_country_select") %>
-        <% end %>
-      <% end %>
-    </div>
+    <%# If the lookup succeeded, or the error is an unsupported_country, show a "Try another?" prompt. %>
+    <%# In other words: This is shown whenever a country was found for the user. %>
+    <%# If no country was found, the "Try another?"-equivalent was shown in the secondary-text div above. %>
+    <% if (@bank_status && @bank_schedule) || @error == :unsupported_country %>
+      <div class="try-another-country-prompt">
+        <center>
+          Try another country?
+        </center>
+      </div>
+    <% end %>
+
+    <%# Show an option to select another country %>
+    <center><%= render("shared/supported_country_select") %></center>
   </div>
 
   <div id="footer">
     <center>
       <strong>
+        <%# Disclaimer %>
         <div>Bank statuses are provided on a best-effort basis only, and are not guaranteed.</div>
 
+        <%# Link to source (e.g. how do we know what the schedule is?) %>
         <% if @bank_schedule %>
           <div>The <%= link_to(@bank_schedule.name, @bank_schedule.link) %> schedule is used to determine <%= @bank_schedule.country_code %> bank statuses.  Some banks may not adhere to this schedule.</div>
         <% end %>
       </strong>
+
+      <%# Link to creator's email %>
       Made by <%= render("shared/creator_email") %>.
     </center>
   </div>
