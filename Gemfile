@@ -12,11 +12,13 @@ gem 'holidays', '2.2.0'
 # NewRelic site monitoring
 gem 'newrelic_rpm', '3.12.1.298'
 
-# Metrics/analytics
-gem 'keen', '0.9.2'
+group :production do
+  # Metrics/analytics
+  gem 'keen', '0.9.2'
 
-# Used for async Keen publishing
-gem "em-http-request", "~> 1.0"
+  # Used for async Keen publishing
+  gem "em-http-request", "~> 1.0"
+end
 
 # Gems used only for assets and not required
 # in production environments by default.
