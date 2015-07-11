@@ -53,6 +53,9 @@ module Banksclosedtoday
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
 
+    # Add Keen metrics middleware  - this publishes all requests to Keen
+    config.middleware.use('KeenMetrics')
+
     # Timezone
     config.time_zone = 'Eastern Time (US & Canada)'
   end
