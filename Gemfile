@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 gem 'rails', '3.2.21'
 
 # Exception monitoring
-gem 'rollbar', '~> 1.5.3'
+gem 'rollbar', '1.5.3'
 
 # Used for holiday detection in BankService#bank_status
 gem 'holidays', '2.2.0'
@@ -12,8 +12,13 @@ gem 'holidays', '2.2.0'
 # NewRelic site monitoring
 gem 'newrelic_rpm', '3.12.1.298'
 
-# GEOIP lookup
-gem 'geoip', '1.4.0'
+group :production do
+  # Metrics/analytics
+  gem 'keen', '0.9.2'
+
+  # Used for async Keen publishing
+  gem "em-http-request", "~> 1.0"
+end
 
 # Gems used only for assets and not required
 # in production environments by default.
