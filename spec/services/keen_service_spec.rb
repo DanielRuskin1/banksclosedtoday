@@ -23,27 +23,27 @@ describe KeenService do
       when :started
         expected_params = {
           request_uuid: @valid_request.uuid,
-          action: :track_request,
+          method: :track_request,
           status: :started,
         }
       when :completed
         expected_params = {
           request_uuid: @valid_request.uuid,
-          action: :track_request,
+          method: :track_request,
           status: :success,
           keen_params: expected_keen_params,
         }
       when :failure_with_invalid_parameter
         expected_params = {
           request_uuid: nil,
-          action: :track_request,
+          method: :track_request,
           status: :failed,
           keen_params: nil,
         }
       when :failure_with_valid_parameter
         expected_params = {
           request_uuid: @valid_request.uuid,
-          action: :track_request,
+          method: :track_request,
           status: :failed,
           keen_params: expected_keen_params,
         }
@@ -52,7 +52,7 @@ describe KeenService do
       end
 
       # Add "at" parameter to the expected_params
-      expected_params.merge!(at: "KeenService#track")
+      expected_params.merge!(at: "KeenService")
 
       # Verify that logging occurred
       expect(Scrolls).to have_received(:log).with(**expected_params)

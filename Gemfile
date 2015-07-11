@@ -15,12 +15,12 @@ gem 'newrelic_rpm', '3.12.1.298'
 # Robust logging
 gem 'scrolls', '0.3.8'
 
+# Async event processing
+gem "em-http-request", "1.1.2"
+
 group :production do
   # Metrics/analytics
   gem 'keen', '0.9.2'
-
-  # Used for async Keen publishing
-  gem "em-http-request", "~> 1.0"
 end
 
 # Gems used only for assets and not required

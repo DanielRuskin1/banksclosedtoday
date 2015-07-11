@@ -11,7 +11,7 @@ class KeenService
 
     # Log
     request_uuid = request.uuid
-    track(request_uuid: request_uuid, action: :track_request, status: :started)
+    track(request_uuid: request_uuid, method: :track_request, status: :started)
 
     # Get Keen params
     keen_params = {}
@@ -25,7 +25,7 @@ class KeenService
     Keen.publish_async(KEEN_REQUEST_ACTION_NAME, keen_params) if Rails.env.production?
 
     # Log
-    track(request_uuid: request_uuid, action: :track_request, status: :success, keen_params: keen_params)
+    track(request_uuid: request_uuid, method: :track_request, status: :success, keen_params: keen_params)
 
     # Return true for success
     true
@@ -35,13 +35,15 @@ class KeenService
     Rollbar.error(e)
 
     # Log
-    track(request_uuid: request_uuid, action: :track_request, status: :failed, keen_params: keen_params)
+    track(request_uuid: request_uuid, method: :track_request, status: :failed, keen_params: keen_params)
 
     # Return false for failure
     false
   end
 
+  # Helper method to log requests to KeenService requests.
   def self.track(**params)
-    Scrolls.log(params.merge(at: "KeenService#track"))
+    # Log with added "at" indicator
+    Scrolls.log({at: "KeenService"}.merge(params))
   end
 end
