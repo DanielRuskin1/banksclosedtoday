@@ -23,21 +23,21 @@ describe KeenService do
       when :track_request_started
         expected_params = {
           method: :track_request,
-          status: :started,
+          status: :started
         }
       when :track_action_started
         expected_params = {
           method: :track_action,
           status: :started,
-          action_name: "page_visit",
-          tracking_params: expected_keen_params,
+          action_name: 'page_visit',
+          tracking_params: expected_keen_params
         }
       when :completed
         expected_params = {
           method: :track_action,
           status: :completed,
-          action_name: "page_visit",
-          tracking_params: expected_keen_params,
+          action_name: 'page_visit',
+          tracking_params: expected_keen_params
         }
       else
         fail NotImplementedError, "Unknown type #{type}!"

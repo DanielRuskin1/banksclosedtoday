@@ -19,16 +19,16 @@ class UsBank < Bank
 
   def self.observed_holidays
     ["New Year's Day",
-      'Martin Luther King, Jr. Day',
-      "Presidents' Day",
-      'Memorial Day',
-      'Independence Day',
-      'Labor Day',
-      'Columbus Day',
-      'Veterans Day',
-      'Thanksgiving',
-      'Christmas Day',
-      'Inauguration Day']
+     'Martin Luther King, Jr. Day',
+     "Presidents' Day",
+     'Memorial Day',
+     'Independence Day',
+     'Labor Day',
+     'Columbus Day',
+     'Veterans Day',
+     'Thanksgiving',
+     'Christmas Day',
+     'Inauguration Day']
   end
 
   def self.bank_closure_reason

@@ -49,16 +49,14 @@ class KeenService
   # 3. Return false
   # As Keen tracking is non-critical, the above error handling will ensure that requests
   # are not interrupted due to errors.
-  def self.catch_and_handle_errors(method_name)
-    begin
-      yield
-    rescue => e
-      # Rollbar
-      Rollbar.error(e)
+  def self.catch_and_handle_errors(_method_name)
+    yield
+  rescue => e
+    # Rollbar
+    Rollbar.error(e)
 
-      # Return
-      false
-    end
+    # Return
+    false
   end
 
   # Helper method to log requests to KeenService requests.
