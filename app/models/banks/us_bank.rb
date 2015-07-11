@@ -28,7 +28,7 @@ class UsBank < Bank
 
   def self.bank_closure_reason
     # If today falls on a weekend, just return that here -
-    # that's the primary closure reason.
+    # it's the primary closure reason.
     if time_to_check.saturday? || time_to_check.sunday?
       return THE_WEEKEND_CLOSURE_MESSAGE
     end
