@@ -42,7 +42,7 @@ class UsBank < Bank
     holidays_today = get_applicable_holiday_names_for_day(time_to_check)
 
     # If today is Friday, get any Saturday holiday names.
-    # Otherwise, if today is Sunday, get any Monday holiday names.
+    # Otherwise, if today is Monday, get any Sunday holiday names.
     if time_to_check.friday?
       holidays_today += get_applicable_holiday_names_for_day(time_to_check + 1.day)
     elsif time_to_check.monday?
