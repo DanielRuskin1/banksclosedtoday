@@ -1,10 +1,10 @@
-# Holidays that coincide with Thanksgiving, for testing purposes
+# Make Independence Day and Veterans Day coincide with Thanksgiving, for testing purposes
 ---
 months:
   11:
-  - name: Thanksgiving Two
+  - name: Independence Day
     regions: [us]
     mday: 26
-  - name: Thanksgiving Three
+  - name: Veterans Day
     regions: [us]
     mday: 26

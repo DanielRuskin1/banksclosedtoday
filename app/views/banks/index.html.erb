@@ -6,15 +6,15 @@
     <div class="primary-text top-header">
       <center>
         <strong>
-          <% if @bank_status && @bank_schedule %>
-            Are <%= @bank_schedule.country_code %> banks closed today?
-          <% else %>
+          <% if @error %>
             <% case @error %>
             <% when :no_country %>
               We weren't able to figure out where you are in the world.
             <% when :unsupported_country %>
               Unfortunately, your country isn't supported at this time.
             <% end %>
+          <% else %>
+            Are <%= @country.code %> banks closed today?
           <% end %>
         </strong>
       </center>
@@ -23,15 +23,20 @@
     <%# Secondary content.  The answer to the question if the lookup succeeded, or a secondary error message. %>
     <div class="secondary-text">
       <center>
-        <% if @bank_status && @bank_schedule %>
-          <strong><%= @bank_status.closed ? "Yes." : "No." %></strong>
-          <%= @bank_status.message %>
-        <% else %>
+        <% if @error %>
           <% case @error %>
           <% when :no_country %>
             Can you tell us?
           <% when :unsupported_country %>
             Email <%= render("shared/creator_email", link_text: "us") %> and request support!
+          <% end %>
+        <% else %>
+          <% if @bank_closure_reason.present? %>
+            <strong>Yes.</strong>
+            Most <%= @country.code %> banks are closed because of <%= @bank_closure_reason %>.
+          <% else %>
+            <strong>No.</strong>
+            Most <%= @country.code %> banks are open.
           <% end %>
         <% end %>
       </center>
@@ -40,7 +45,7 @@
     <%# If the lookup succeeded, or the error is an unsupported_country, show a "Try another?" prompt. %>
     <%# In other words: This is shown whenever a country was found for the user. %>
     <%# If no country was found, the "Try another?"-equivalent was shown in the secondary-text div above. %>
-    <% if (@bank_status && @bank_schedule) || @error == :unsupported_country %>
+    <% if [nil, :unsupported_country].include?(@error) %>
       <div class="try-another-country-prompt">
         <center>
           Try another country?
@@ -59,8 +64,8 @@
         <div>Bank statuses are provided on a best-effort basis only, and are not guaranteed.</div>
 
         <%# Link to source (e.g. how do we know what the schedule is?) %>
-        <% if @bank_schedule %>
-          <div>The <%= link_to(@bank_schedule.name, @bank_schedule.link) %> schedule is used to determine <%= @bank_schedule.country_code %> bank statuses.  Some banks may not adhere to this schedule.</div>
+        <% if @country %>
+          <div>The <%= link_to(@country.bank.schedule_name, @country.bank.schedule_link) %> schedule is used to determine <%= @country.code %> bank statuses.  Some banks may not adhere to this schedule.</div>
         <% end %>
       </strong>
 

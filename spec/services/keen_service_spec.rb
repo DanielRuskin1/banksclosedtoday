@@ -7,7 +7,7 @@ describe KeenService do
     @valid_request = ActionDispatch::TestRequest.new
   end
 
-  describe "#track_request" do
+  describe '#track_request' do
     # Helper method to verify that the appropriate logging occurred.
     def verify_logging(type)
       # Get expected Keen params - this is used in a few of the options below
@@ -15,7 +15,7 @@ describe KeenService do
         request_uuid: @valid_request.uuid,
         request_remote_ip: @valid_request.remote_ip,
         request_user_agent: @valid_request.user_agent,
-        request_url: @valid_request.url,
+        request_url: @valid_request.url
       }
 
       # Get expected params
@@ -24,35 +24,35 @@ describe KeenService do
         expected_params = {
           request_uuid: @valid_request.uuid,
           method: :track_request,
-          status: :started,
+          status: :started
         }
       when :completed
         expected_params = {
           request_uuid: @valid_request.uuid,
           method: :track_request,
           status: :success,
-          keen_params: expected_keen_params,
+          keen_params: expected_keen_params
         }
       when :failure_with_invalid_parameter
         expected_params = {
           request_uuid: nil,
           method: :track_request,
           status: :failed,
-          keen_params: nil,
+          keen_params: nil
         }
       when :failure_with_valid_parameter
         expected_params = {
           request_uuid: @valid_request.uuid,
           method: :track_request,
           status: :failed,
-          keen_params: expected_keen_params,
+          keen_params: expected_keen_params
         }
       else
-        raise NotImplementedError, "Unknown type #{type}!"
+        fail NotImplementedError, "Unknown type #{type}!"
       end
 
       # Add "at" parameter to the expected_params
-      expected_params.merge!(at: "KeenService")
+      expected_params.merge!(at: 'KeenService')
 
       # Verify that logging occurred
       expect(Scrolls).to have_received(:log).with(**expected_params)
@@ -68,8 +68,8 @@ describe KeenService do
       end
     end
 
-    describe "logging" do
-      it "should log with the correct params" do
+    describe 'logging' do
+      it 'should log with the correct params' do
         # Spy on rollbar and scrolls during this test
         spy(:rollbar)
         spy(:scrolls)
@@ -88,15 +88,15 @@ describe KeenService do
       end
     end
 
-    describe "error handling" do
-      it "should rescue any exceptions and log correctly" do
+    describe 'error handling' do
+      it 'should rescue any exceptions and log correctly' do
         # Spy on rollbar and scrolls during this test
         spy(:rollbar)
         spy(:scrolls)
 
         # Call the method with an invalid parameter (a String)
         # Make sure an unsuccessful result is returned
-        expect(KeenService.track_request("foo")).to eq(false)
+        expect(KeenService.track_request('foo')).to eq(false)
 
         # Verify failure logging
         verify_logging(:failure_with_invalid_parameter)
@@ -105,14 +105,14 @@ describe KeenService do
         expect(Rollbar).to have_received(:error).with(instance_of(ArgumentError))
       end
 
-      it "should also log with keen_params when available" do
+      it 'should also log with keen_params when available' do
         # Spy on rollbar and scrolls during this test
         spy(:rollbar)
         spy(:scrolls)
 
         # Stub the successful logging to raise an exception
         allow(Scrolls).to receive(:log).with(hash_including(status: :success)) do
-          raise ArgumentError, "Success is impossible."
+          fail ArgumentError, 'Success is impossible.'
         end
 
         # Call the method with a valid request

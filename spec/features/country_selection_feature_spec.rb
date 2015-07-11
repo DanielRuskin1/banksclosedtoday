@@ -9,7 +9,7 @@ describe 'country selection', type: :feature do
     Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
 
     # Go to page with country param
-    visit root_path(country: 'US')
+    visit root_path(country_code: 'US')
 
     # Make sure correct messaging is shown
     expect_open_us_day
@@ -23,7 +23,7 @@ describe 'country selection', type: :feature do
     Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
 
     # Go to page with country param
-    visit root_path(country: 'us')
+    visit root_path(country_code: 'us')
 
     # Make sure correct messaging is shown
     expect_open_us_day
@@ -68,7 +68,7 @@ describe 'country selection', type: :feature do
         expect(page).to_not have_button('Go!')
 
         # Try submitting a different country - an auto-submit should occur
-        select('United States', from: 'country')
+        select('United States', from: 'country_code')
 
         # Make sure correct messaging is shown
         expect_open_us_day
@@ -93,7 +93,7 @@ describe 'country selection', type: :feature do
         expect_unsupported_country_error
 
         # Try choosing a different country
-        select('United States', from: 'country')
+        select('United States', from: 'country_code')
 
         # Manually submit form
         click_button('Go!')
@@ -126,7 +126,7 @@ describe 'country selection', type: :feature do
         expect(page).to_not have_button('Go!')
 
         # Try submitting a different country - an auto-submit should occur
-        select('United States', from: 'country')
+        select('United States', from: 'country_code')
 
         # Make sure correct messaging is shown
         expect_open_us_day
@@ -151,7 +151,7 @@ describe 'country selection', type: :feature do
         expect_no_country_error
 
         # Try choosing a different country
-        select('United States', from: 'country')
+        select('United States', from: 'country_code')
 
         # Manually submit form
         click_button('Go!')

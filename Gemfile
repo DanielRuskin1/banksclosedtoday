@@ -16,7 +16,7 @@ gem 'newrelic_rpm', '3.12.1.298'
 gem 'scrolls', '0.3.8'
 
 # Async event processing
-gem "em-http-request", "1.1.2"
+gem 'em-http-request', '1.1.2'
 
 group :production do
   # Metrics/analytics

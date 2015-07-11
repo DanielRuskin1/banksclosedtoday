@@ -4,10 +4,10 @@ class KeenService
   # This method takes in a Rack::Request, then publishes it to Keen for metrics tracking.
   # Note that the actual Keen request will only occur on production.
   # Non-production environments will be skipped.
-  KEEN_REQUEST_ACTION_NAME = "page_visit"
+  KEEN_REQUEST_ACTION_NAME = 'page_visit'
   def self.track_request(request)
     # Verify that request is valid
-    raise ArgumentError, "Invalid parameter #{request}!" unless request.is_a?(Rack::Request)
+    fail ArgumentError, "Invalid parameter #{request}!" unless request.is_a?(Rack::Request)
 
     # Log
     request_uuid = request.uuid
@@ -44,6 +44,6 @@ class KeenService
   # Helper method to log requests to KeenService requests.
   def self.track(**params)
     # Log with added "at" indicator
-    Scrolls.log({at: "KeenService"}.merge(params))
+    Scrolls.log({ at: 'KeenService' }.merge(params))
   end
 end

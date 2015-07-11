@@ -1,5 +1,5 @@
-# UserCountryService is used to perform GEOIP lookups on users.  This allows us to serve country-specific messaging.
-class UserCountryService
+# UserLocationService is used to perform GEOIP lookups on users.  This allows us to serve country-specific messaging.
+class UserLocationService
   # Service to use for GEOIP lookups
   GEOIP_SERVICE_URL = 'http://api.hostip.info/country.php?ip=%s'
 
@@ -7,13 +7,9 @@ class UserCountryService
   HOSTIP_INVALID_COUNTRY_CODE = 'XX'
 
   # Base exception class for UserCountryService errors
-  class UserCountryServiceError < StandardError; end
-
-  # Exception for a blank remote_ip
-  class NoRemoteIpError < UserCountryServiceError; end
-
-  # Exception for an invalid country from the GEOIP service (HOSTIP_INVALID_COUNTRY_CODE)
-  class ReceivedBadCountryError < UserCountryServiceError; end
+  class UserLocationServiceError < StandardError; end
+  class NoRemoteIpError < UserLocationServiceError; end # Exception for a blank remote_ip
+  class ReceivedBadCountryError < UserLocationServiceError; end # Exception for an invalid country from the GEOIP service (HOSTIP_INVALID_COUNTRY_CODE)
 
   ###
   # "Expected" errors to rescue in the country method
@@ -36,7 +32,7 @@ class UserCountryService
   # Calls the GEOIP_SERVICE_URL and returns a CountryStatusResponse.
   # Error types specified in EXPECTED_ERRORS_TO_RESCUE will be caught, and an unsuccessful CountryStatusResponse will be returned.
   # Other error types will be raised.
-  def self.country_for_ip(remote_ip)
+  def self.location_for_ip(remote_ip)
     # remote_ip cannot be blank
     fail NoRemoteIpError unless remote_ip.present?
 
@@ -48,25 +44,16 @@ class UserCountryService
       Net::HTTP.get_response(uri_to_request).body
     end
 
-    # Raise here if the returned country code indicates a malformed reuest
+    # Raise here if the returned country code indicates a malformed request
     fail ReceivedBadCountryError if country_code == HOSTIP_INVALID_COUNTRY_CODE
 
-    # Return country
-    CountryStatusResponse.new(success: true, country_code: country_code)
+    # Return a UserLocation object with the user's country_code
+    UserLocation.new(country_code: country_code)
   rescue *EXPECTED_ERRORS_TO_RESCUE => e
     # Notify Rollbar for tracking purposes
     Rollbar.error(e)
 
-    # Return an unsuccessful response
-    CountryStatusResponse.new(success: false)
-  end
-
-  class CountryStatusResponse
-    attr_accessor :success, :country_code
-
-    def initialize(options = {})
-      @success = options[:success]
-      @country_code = options[:country_code]
-    end
+    # Return a blank response
+    UserLocation.new
   end
 end

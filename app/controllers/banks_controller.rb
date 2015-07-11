@@ -1,37 +1,24 @@
 class BanksController < ApplicationController
   def index
-    # Default country should be the user's country param
-    country_code = params[:country].upcase if params[:country].is_a?(String)
-
-    # If a country param was not passed in, query for one based on the IP
-    unless country_code.present?
-      # Query
-      country_response = UserCountryService.country_for_ip(request.remote_ip)
-
-      # If successful, set to param.
-      # Otherwise, set error.
-      if country_response.success
-        country_code = country_response.country_code
-      else
-        @error = :no_country
-      end
+    # If the user passed in a country_code, get a UserLocation based on the provided param
+    # Otherwise, get one based on their IP address.
+    if params[:country_code].is_a?(String)
+      user_location = UserLocation.new(country_code: params[:country_code].upcase)
+    else
+      user_location = UserLocationService.location_for_ip(request.remote_ip)
     end
 
-    # Check if the country is supported:
-    # 1. Get get the appropriate info if so
-    # 2. Set an error if not.
-    # Skip this part if an error was already set above
-    unless @error
-      if BankService::SUPPORTED_COUNTRIES.include?(country_code)
-        # Get the appropriate BankService
-        bank_service = BankService.get_service_for_country(country_code)
+    # Get the UserLocation's Country
+    @country = user_location.country
 
-        # Get the bank's status
-        @bank_status = bank_service.bank_status
-        @bank_schedule = bank_service.bank_schedule
-      else
-        @error = :unsupported_country
-      end
+    # If a Country was found, get the Bank closure reason.
+    if @country
+      @bank_closure_reason = @country.bank.bank_closure_reason
+    else
+      # If a Country was not found, two errors could have occurred:
+      # 1. We could have not found the user's country (country_code is blank), or
+      # 2. The user's country is not supported (country_code is not blank - but no Country was found)
+      @error = user_location.country_code.blank? ? :no_country : :unsupported_country
     end
   end
 end
