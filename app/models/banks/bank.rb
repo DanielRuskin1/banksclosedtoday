@@ -27,6 +27,32 @@ class Bank
   end
 
   ###
+  # The Holiday regions that this bank observes.
+  # This must be implemented in subclasses.
+  def self.applicable_holiday_regions
+    fail NotImplementedError
+  end
+
+  ###
+  # The list of holidays that this bank observes.
+  # This must be implemented in subclasses.
+  def self.observed_holidays
+    fail NotImplementedError
+  end
+
+  ###
+  # Helper method that returns a list of applicable holidays for the provided day.
+  # The applicable_holiday_regions and observed_holidays for the region are taken into account.
+  def self.get_applicable_holiday_names_for_day(day)
+    day.holidays(applicable_holiday_regions).map do |holiday|
+      # Include the holiday's name, if it's an observed holiday.
+      if observed_holidays.include?(holiday[:name])
+        holiday[:name]
+      end
+    end.compact.uniq
+  end
+
+  ###
   # Method that returns a reason for bank closure.
   # If this is nil, banks are not closed.
   # This must be implemented in subclasses.
