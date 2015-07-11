@@ -52,6 +52,9 @@ GEM
     crack (0.4.2)
       safe_yaml (~> 1.0.0)
     diff-lcs (1.2.5)
+    dotenv (2.0.1)
+    dotenv-rails (2.0.1)
+      dotenv (= 2.0.1)
     em-http-request (1.1.2)
       addressable (>= 2.3.4)
       cookiejar
@@ -182,6 +185,7 @@ PLATFORMS
 DEPENDENCIES
   capybara
   coffee-rails
+  dotenv-rails
   em-http-request (= 1.1.2)
   holidays (= 2.2.0)
   jquery-rails

@@ -45,6 +45,9 @@ group :development, :test do
 
   # Ruby style enforcement
   gem 'rubocop'
+
+  # Default dev/test env variables
+  gem 'dotenv-rails'
 end
 
 group :test do
