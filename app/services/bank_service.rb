@@ -1,3 +1,4 @@
+# BankService is used to determine whether banks in a given country are open.
 class BankService
   SUPPORTED_COUNTRIES = {
     'US' => 'United States'

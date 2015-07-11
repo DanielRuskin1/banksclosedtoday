@@ -1,3 +1,4 @@
+# UserCountryService is used to perform GEOIP lookups on users.  This allows us to serve country-specific messaging.
 class UserCountryService
   # Service to use for GEOIP lookups
   GEOIP_SERVICE_URL = 'http://api.hostip.info/country.php?ip=%s'
