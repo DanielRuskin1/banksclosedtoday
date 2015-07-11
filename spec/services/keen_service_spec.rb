@@ -12,9 +12,9 @@ describe KeenService do
     def verify_logging(type)
       # Get expected Keen params - this is used in a few of the options below
       expected_keen_params = {
-        uuid: @valid_request.uuid,
-        remote_ip: @valid_request.remote_ip,
-        user_agent: @valid_request.user_agent,
+        request_uuid: @valid_request.uuid,
+        request_remote_ip: @valid_request.remote_ip,
+        request_user_agent: @valid_request.user_agent,
         request_url: @valid_request.url,
       }
 

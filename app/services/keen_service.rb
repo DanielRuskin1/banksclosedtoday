@@ -15,9 +15,9 @@ class KeenService
 
     # Get Keen params
     keen_params = {}
-    keen_params[:uuid] = request.uuid
-    keen_params[:remote_ip] = request.remote_ip
-    keen_params[:user_agent] = request.user_agent
+    keen_params[:request_uuid] = request.uuid
+    keen_params[:request_remote_ip] = request.remote_ip
+    keen_params[:request_user_agent] = request.user_agent
     keen_params[:request_url] = request.url
 
     # Schedule publishing if we're on production
