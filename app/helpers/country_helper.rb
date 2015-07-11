@@ -1,4 +1,4 @@
-module ApplicationHelper
+module CountryHelper
   def supported_country_select_options
     # Generate options hash
     country_options = {}
