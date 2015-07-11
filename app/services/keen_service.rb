@@ -6,39 +6,59 @@ class KeenService
   # Non-production environments will be skipped.
   KEEN_REQUEST_ACTION_NAME = 'page_visit'
   def self.track_request(request)
-    # Verify that request is valid
-    fail ArgumentError, "Invalid parameter #{request}!" unless request.is_a?(Rack::Request)
+    catch_and_handle_errors(:track_request) do
+      # Log
+      track(method: :track_request, status: :started)
 
-    # Log
-    request_uuid = request.uuid
-    track(request_uuid: request_uuid, method: :track_request, status: :started)
+      # Verify that request is valid
+      fail ArgumentError, "Invalid parameter #{request}!" unless request.is_a?(Rack::Request)
 
-    # Get Keen params
-    keen_params = {}
-    keen_params[:request_uuid] = request.uuid
-    keen_params[:request_remote_ip] = request.remote_ip
-    keen_params[:request_user_agent] = request.user_agent
-    keen_params[:request_url] = request.url
+      # Generate Keen params
+      tracking_params = {}
+      tracking_params[:request_uuid] = request.uuid
+      tracking_params[:request_remote_ip] = request.remote_ip
+      tracking_params[:request_user_agent] = request.user_agent
+      tracking_params[:request_url] = request.url
 
-    # Schedule publishing if we're on production
-    # Async publishing is used to avoid slowing down requests
-    Keen.publish_async(KEEN_REQUEST_ACTION_NAME, keen_params) if Rails.env.production?
+      # Track on Keen
+      track_action(KEEN_REQUEST_ACTION_NAME, tracking_params)
+    end
+  end
 
-    # Log
-    track(request_uuid: request_uuid, method: :track_request, status: :success, keen_params: keen_params)
+  def self.track_action(action_name, tracking_params)
+    catch_and_handle_errors(:track_action) do
+      # Log
+      track(method: :track_action, status: :started, action_name: action_name, tracking_params: tracking_params)
 
-    # Return true for success
-    true
-  rescue => e
-    # If any requests occur here, just notify Rollbar and log for now.
-    # Keen tracking is non-critical, so there's no need to fail the entire request.
-    Rollbar.error(e)
+      # Schedule publishing if on production
+      # Async publishing is used to avoid slowing down requests
+      Keen.publish_async(action_name, tracking_params) if Rails.env.production?
 
-    # Log
-    track(request_uuid: request_uuid, method: :track_request, status: :failed, keen_params: keen_params)
+      # Log
+      track(method: :track_action, status: :completed, action_name: action_name, tracking_params: tracking_params)
 
-    # Return false for failure
-    false
+      # Return true for success
+      true
+    end
+  end
+
+  ###
+  # Helper method to run a block, then take the following actions on exceptions
+  # 1. Notify Rollbar
+  # 2. Track on Scrolls
+  # 3. Return false
+  # As Keen tracking is non-critical, the above error handling will ensure that requests
+  # are not interrupted due to errors.
+  def self.catch_and_handle_errors(method_name)
+    begin
+      yield
+    rescue => e
+      # Rollbar
+      Rollbar.error(e)
+
+      # Return
+      false
+    end
   end
 
   # Helper method to log requests to KeenService requests.

@@ -9,7 +9,7 @@ describe KeenService do
 
   describe '#track_request' do
     # Helper method to verify that the appropriate logging occurred.
-    def verify_logging(type)
+    def verify_logging(type, occurred: true)
       # Get expected Keen params - this is used in a few of the options below
       expected_keen_params = {
         request_uuid: @valid_request.uuid,
@@ -20,32 +20,24 @@ describe KeenService do
 
       # Get expected params
       case type
-      when :started
+      when :track_request_started
         expected_params = {
-          request_uuid: @valid_request.uuid,
           method: :track_request,
-          status: :started
+          status: :started,
+        }
+      when :track_action_started
+        expected_params = {
+          method: :track_action,
+          status: :started,
+          action_name: "page_visit",
+          tracking_params: expected_keen_params,
         }
       when :completed
         expected_params = {
-          request_uuid: @valid_request.uuid,
-          method: :track_request,
-          status: :success,
-          keen_params: expected_keen_params
-        }
-      when :failure_with_invalid_parameter
-        expected_params = {
-          request_uuid: nil,
-          method: :track_request,
-          status: :failed,
-          keen_params: nil
-        }
-      when :failure_with_valid_parameter
-        expected_params = {
-          request_uuid: @valid_request.uuid,
-          method: :track_request,
-          status: :failed,
-          keen_params: expected_keen_params
+          method: :track_action,
+          status: :completed,
+          action_name: "page_visit",
+          tracking_params: expected_keen_params,
         }
       else
         fail NotImplementedError, "Unknown type #{type}!"
@@ -55,7 +47,11 @@ describe KeenService do
       expected_params.merge!(at: 'KeenService')
 
       # Verify that logging occurred
-      expect(Scrolls).to have_received(:log).with(**expected_params)
+      if occurred
+        expect(Scrolls).to have_received(:log).with(**expected_params)
+      else
+        expect(Scrolls).to_not have_received(:log).with(**expected_params)
+      end
     end
 
     # Helper method to spy on a class
@@ -78,7 +74,8 @@ describe KeenService do
         expect(KeenService.track_request(@valid_request)).to eq(true)
 
         # Verify started logging
-        verify_logging(:started)
+        verify_logging(:track_request_started)
+        verify_logging(:track_action_started)
 
         # Verify completed logging
         verify_logging(:completed)
@@ -98,31 +95,12 @@ describe KeenService do
         # Make sure an unsuccessful result is returned
         expect(KeenService.track_request('foo')).to eq(false)
 
-        # Verify failure logging
-        verify_logging(:failure_with_invalid_parameter)
+        # Verify that track_request_started logging occurred - but not track_action_started or completed logging
+        verify_logging(:track_request_started)
+        verify_logging(:track_action_started, occurred: false)
+        verify_logging(:completed, occurred: false)
 
         # Make sure Rollbar was notified with an ArgumentError
-        expect(Rollbar).to have_received(:error).with(instance_of(ArgumentError))
-      end
-
-      it 'should also log with keen_params when available' do
-        # Spy on rollbar and scrolls during this test
-        spy(:rollbar)
-        spy(:scrolls)
-
-        # Stub the successful logging to raise an exception
-        allow(Scrolls).to receive(:log).with(hash_including(status: :success)) do
-          fail ArgumentError, 'Success is impossible.'
-        end
-
-        # Call the method with a valid request
-        # Make sure an unsuccessful result is returned
-        expect(KeenService.track_request(@valid_request)).to eq(false)
-
-        # Verify failure logging
-        verify_logging(:failure_with_valid_parameter)
-
-        # Make sure Rollbar was notified with the ArgumentError raised above
         expect(Rollbar).to have_received(:error).with(instance_of(ArgumentError))
       end
     end
