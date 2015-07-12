@@ -18,7 +18,7 @@ describe KeenService do
           status: :started,
           action_name: 'page_visit',
           request: @valid_request,
-          tracking_params: {},
+          tracking_params: {}
         }
       when :completed
         expected_params = {
@@ -69,15 +69,15 @@ describe KeenService do
 
       it 'should log with the correct params when a request object is passed' do
         # Call method with a valid request; make sure a successful result is returned
-        expect(KeenService.track_action('page_visit', request: @valid_request)).to eq(true)
+        expect(KeenService.track_action(:page_visit, request: @valid_request)).to eq(true)
 
         # Verify started logging
         expected_started_log = {
           method: :track_action,
           status: :started,
-          action_name: 'page_visit',
+          action_name: :page_visit,
           tracking_params: {},
-          at: "KeenService",
+          at: 'KeenService'
         }
         expect(Scrolls).to have_received(:log).with(**expected_started_log)
 
@@ -85,24 +85,24 @@ describe KeenService do
         expected_completed_log = {
           method: :track_action,
           status: :completed,
-          action_name: 'page_visit',
+          action_name: :page_visit,
           tracking_params: expected_request_params,
-          at: "KeenService",
+          at: 'KeenService'
         }
         expect(Scrolls).to have_received(:log).with(**expected_completed_log)
       end
 
-      it "should log with the correct params when tracking_params are passed" do
+      it 'should log with the correct params when tracking_params are passed' do
         # Call method with a valid request; make sure a successful result is returned
-        expect(KeenService.track_action('page_visit', tracking_params: { foo: 'bar' })).to eq(true)
+        expect(KeenService.track_action(:page_visit, tracking_params: { foo: 'bar' })).to eq(true)
 
         # Verify started logging
         expected_started_log = {
           method: :track_action,
           status: :started,
-          action_name: 'page_visit',
+          action_name: :page_visit,
           tracking_params: { foo: 'bar' },
-          at: "KeenService",
+          at: 'KeenService'
         }
         expect(Scrolls).to have_received(:log).with(**expected_started_log)
 
@@ -110,24 +110,24 @@ describe KeenService do
         expected_completed_log = {
           method: :track_action,
           status: :completed,
-          action_name: 'page_visit',
+          action_name: :page_visit,
           tracking_params: { foo: 'bar' },
-          at: "KeenService",
+          at: 'KeenService'
         }
         expect(Scrolls).to have_received(:log).with(**expected_completed_log)
       end
 
-      it "should log with the correct params when no params are passed" do
+      it 'should log with the correct params when no params are passed' do
         # Call method with a valid request; make sure a successful result is returned
-        expect(KeenService.track_action('page_visit')).to eq(true)
+        expect(KeenService.track_action(:page_visit)).to eq(true)
 
         # Verify started logging
         expected_started_log = {
           method: :track_action,
           status: :started,
-          action_name: 'page_visit',
+          action_name: :page_visit,
           tracking_params: {},
-          at: "KeenService",
+          at: 'KeenService'
         }
         expect(Scrolls).to have_received(:log).with(**expected_started_log)
 
@@ -135,9 +135,9 @@ describe KeenService do
         expected_completed_log = {
           method: :track_action,
           status: :completed,
-          action_name: 'page_visit',
+          action_name: :page_visit,
           tracking_params: {},
-          at: "KeenService",
+          at: 'KeenService'
         }
         expect(Scrolls).to have_received(:log).with(**expected_completed_log)
       end
@@ -147,15 +147,15 @@ describe KeenService do
       it 'should rescue any exceptions and log correctly' do
         # Call the method with an invalid parameter (a String)
         # Make sure an unsuccessful result is returned
-        expect(KeenService.track_action('page_visit', request: 'foo')).to eq(false)
+        expect(KeenService.track_action(:page_visit, request: 'foo')).to eq(false)
 
         # Verify started logging
         expected_started_log = {
           method: :track_action,
           status: :started,
-          action_name: 'page_visit',
+          action_name: :page_visit,
           tracking_params: {},
-          at: "KeenService",
+          at: 'KeenService'
         }
         expect(Scrolls).to have_received(:log).with(**expected_started_log)
 

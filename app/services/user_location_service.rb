@@ -12,10 +12,12 @@ class UserLocationService
   class ReceivedBadCountryError < UserLocationServiceError; end # Exception for an invalid country from the GEOIP service (HOSTIP_INVALID_COUNTRY_CODE)
 
   ###
-  # "Expected" errors to rescue in the country method
-  # If any of these error types occur, an unsuccessful response will be returned.
+  # Expected errors to rescue in the country method
+  # If any of these error types occur, the following actions will be taken:
+  # 1. Keen will be notified for tracking purposes
+  # 2. The error will be "hidden" - a blank UserLocation will be returned
   # Other error types will not be rescued.
-  EXPECTED_ERRORS_TO_RESCUE = [
+  REQUEST_EXCEPTIONS_TO_RESCUE = [
     URI::InvalidURIError, # Malformed IP or URI
     Timeout::Error, # Request took too long
     Errno::EINVAL, # Net:HTTP error
@@ -30,30 +32,45 @@ class UserLocationService
 
   ###
   # Calls the GEOIP_SERVICE_URL and returns a CountryStatusResponse.
-  # Error types specified in EXPECTED_ERRORS_TO_RESCUE will be caught, and an unsuccessful CountryStatusResponse will be returned.
+  # Error types specified in REQUEST_EXCEPTIONS_TO_RESCUE will be rescued, and a blank UserLocation will be returned.
   # Other error types will be raised.
-  def self.location_for_ip(remote_ip)
-    # remote_ip cannot be blank
-    fail NoRemoteIpError unless remote_ip.present?
+  def self.location_for_request(request)
+    # Validate parameter
+    fail ArgumentError, "Invalid parameter #{request}!" unless request.is_a?(Rack::Request)
 
-    # Generate URL
+    # Get country_code for the IP
+    country_code = send_request_with_remote_ip(request.remote_ip)
+
+    # Track with Keen
+    KeenService.track_action(:country_lookup_success,
+                             request: request,
+                             tracking_params: { country_code: country_code })
+
+    # Return a UserLocation object with the country_code
+    UserLocation.new(country_code: country_code)
+  rescue *REQUEST_EXCEPTIONS_TO_RESCUE => e
+    # Track with Keen
+    KeenService.track_action(:country_lookup_failed,
+                             request: request,
+                             tracking_params: { country_code: country_code, error: e.class.to_s })
+
+    # Return a blank UserLocation object
+    UserLocation.new
+  end
+
+  def self.send_request_with_remote_ip(remote_ip)
+    # Generate URI
     uri_to_request = URI.parse(GEOIP_SERVICE_URL % remote_ip)
 
-    # Run request
-    country_code = Timeout.timeout(1) do
-      Net::HTTP.get_response(uri_to_request).body
+    # Run request and get result
+    country_code = Net::HTTP.get_response(uri_to_request).body
+
+    # If the request was successful, return the result.
+    # Otherwise, raise an exception.
+    if country_code == HOSTIP_INVALID_COUNTRY_CODE
+      fail ReceivedBadCountryError
+    else
+      country_code
     end
-
-    # Raise here if the returned country code indicates a malformed request
-    fail ReceivedBadCountryError if country_code == HOSTIP_INVALID_COUNTRY_CODE
-
-    # Return a UserLocation object with the user's country_code
-    UserLocation.new(country_code: country_code)
-  rescue *EXPECTED_ERRORS_TO_RESCUE => e
-    # Notify Rollbar for tracking purposes
-    Rollbar.error(e)
-
-    # Return a blank response
-    UserLocation.new
   end
 end

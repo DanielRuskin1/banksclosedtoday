@@ -3,13 +3,12 @@ class KeenMetrics
     @app = app
   end
 
-  KEEN_REQUEST_ACTION_NAME = 'page_visit'
   def call(env)
     # Get request
     request = ActionDispatch::Request.new(env)
 
     # Track with Keen
-    KeenService.track_action(KEEN_REQUEST_ACTION_NAME, request: request)
+    KeenService.track_action(:page_visit, request: request)
 
     # Finish call
     @app.call(env)

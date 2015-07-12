@@ -5,7 +5,7 @@ class BanksController < ApplicationController
     if params[:country_code].is_a?(String)
       user_location = UserLocation.new(country_code: params[:country_code].upcase)
     else
-      user_location = UserLocationService.location_for_ip(request.remote_ip)
+      user_location = UserLocationService.location_for_request(request)
     end
 
     # Get the UserLocation's Country
@@ -20,5 +20,10 @@ class BanksController < ApplicationController
       # 2. The user's country is not supported (country_code is not blank - but no Country was found)
       @error = user_location.country_code.blank? ? :no_country : :unsupported_country
     end
+
+    # Track with Keen
+    KeenService.track_action(:bank_status_check,
+                             request: request,
+                             tracking_params: { country_code: user_location.country_code, error: @error })
   end
 end
