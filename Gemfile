@@ -27,37 +27,40 @@ end
 # in production environments by default.
 group :assets do
   # Asset compiliation
-  gem 'sass-rails'
+  gem 'sass-rails', '3.2.6'
 
   # JQuery
-  gem 'jquery-rails'
+  gem 'jquery-rails', '3.1.3'
 
   # Coffeescript
-  gem 'coffee-rails'
+  gem 'coffee-rails', '3.2.2'
 
   # JS uglifier/minimizer
-  gem 'uglifier'
+  gem 'uglifier', '2.7.1'
 end
 
 group :development, :test do
   # Time management lib
-  gem 'timecop'
+  gem 'timecop', '0.7.4'
 
   # Ruby style enforcement
-  gem 'rubocop'
+  gem 'rubocop', '0.32.1'
 
   # Default dev/test env variables
-  gem 'dotenv-rails'
+  gem 'dotenv-rails', '2.0.1'
 end
 
 group :test do
   # Testing library
-  gem 'rspec-rails'
-
-  # Feature test libraries
-  gem 'poltergeist'
-  gem 'capybara'
+  gem 'rspec-rails', '3.3.2'
 
   # Test mocking library
-  gem 'webmock'
+  gem 'webmock', '1.21.0'
+
+  # Feature test libraries
+  gem 'poltergeist', '1.6.0'
+  gem 'capybara', '2.4.4'
+
+  # Code coverage gem
+  gem 'simplecov', '0.8.2'
 end

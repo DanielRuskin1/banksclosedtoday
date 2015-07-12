@@ -17,6 +17,12 @@
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 # This file is copied to spec/ when you run 'rails generate rspec:install'
+
+# Include code coverage
+require 'simplecov'
+SimpleCov.start
+
+# Set rails env to test, if it's not yet set
 ENV['RAILS_ENV'] ||= 'test'
 
 # Env files

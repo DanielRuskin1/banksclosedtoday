@@ -10,39 +10,31 @@ describe 'country selection', type: :feature do
     allow(UserLocationService).to receive(:location_for_request).and_call_original
   end
 
-  def expect_keen_call(occurred, call, params)
-    if occurred
-      expect(KeenService).to have_received(:track_action).with(call, params)
-    else
-      expect(KeenService).to_not have_received(:track_action).with(params)
-    end
-  end
-
-  def expect_country_lookup_success_keen_call(country_code: 'US', occurred: true)
+  def expect_country_lookup_success_keen_call(country_code: 'US')
     params = {
       request: instance_of(ActionDispatch::Request),
       tracking_params: { country_code: country_code }
     }
 
-    expect_keen_call(occurred, :country_lookup_success, params)
+    expect_keen_call(:country_lookup_success, params)
   end
 
-  def expect_country_lookup_failed_keen_call(error_class, country_code: nil, occurred: true)
+  def expect_country_lookup_failed_keen_call(error_class, country_code: nil)
     params = {
       request: instance_of(ActionDispatch::Request),
       tracking_params: { country_code: country_code, error: error_class.to_s }
     }
 
-    expect_keen_call(occurred, :country_lookup_failed, params)
+    expect_keen_call(:country_lookup_failed, params)
   end
 
-  def expect_bank_status_check_keen_call(country_code: 'US', error: nil, occurred: true)
+  def expect_bank_status_check_keen_call(country_code: 'US', error: nil)
     params = {
       request: instance_of(ActionDispatch::Request),
       tracking_params: { country_code: country_code, error: error }
     }
 
-    expect_keen_call(occurred, :bank_status_check, params)
+    expect_keen_call(:bank_status_check, params)
   end
 
   it "should use the user's country param when provided and show correct messaging" do
@@ -60,6 +52,8 @@ describe 'country selection', type: :feature do
 
     # Make sure KeenService was called correctly
     expect_bank_status_check_keen_call
+    expect_no_keen_call(:country_lookup_success)
+    expect_no_keen_call(:country_lookup_failed)
   end
 
   it 'should not care about case' do
@@ -77,6 +71,8 @@ describe 'country selection', type: :feature do
 
     # Make sure KeenService was called correctly
     expect_bank_status_check_keen_call
+    expect_no_keen_call(:country_lookup_success)
+    expect_no_keen_call(:country_lookup_failed)
   end
 
   it 'should use GEOIP lookup otherwise and show correct messaging' do
@@ -97,6 +93,7 @@ describe 'country selection', type: :feature do
 
     # Make sure KeenService was called correctly
     expect_country_lookup_success_keen_call
+    expect_no_keen_call(:country_lookup_failed)
     expect_bank_status_check_keen_call
   end
 
@@ -133,6 +130,7 @@ describe 'country selection', type: :feature do
 
         # Make sure KeenService was called correctly
         expect_country_lookup_success_keen_call(country_code: 'NL')
+        expect_no_keen_call(:country_lookup_failed)
         expect_bank_status_check_keen_call(country_code: 'NL', error: :unsupported_country)
         expect_bank_status_check_keen_call(country_code: 'US')
       end
@@ -170,6 +168,7 @@ describe 'country selection', type: :feature do
 
         # Make sure KeenService was called correctly
         expect_country_lookup_success_keen_call(country_code: 'NL')
+        expect_no_keen_call(:country_lookup_failed)
         expect_bank_status_check_keen_call(country_code: 'NL', error: :unsupported_country)
         expect_bank_status_check_keen_call(country_code: 'US')
       end
@@ -209,6 +208,7 @@ describe 'country selection', type: :feature do
 
         # Make sure KeenService was called correctly
         expect_country_lookup_failed_keen_call(UserLocationService::ReceivedBadCountryError)
+        expect_no_keen_call(:country_lookup_success)
         expect_bank_status_check_keen_call(country_code: nil, error: :no_country)
         expect_bank_status_check_keen_call(country_code: 'US')
       end
@@ -246,6 +246,7 @@ describe 'country selection', type: :feature do
 
         # Make sure KeenService was called correctly
         expect_country_lookup_failed_keen_call(UserLocationService::ReceivedBadCountryError)
+        expect_no_keen_call(:country_lookup_success)
         expect_bank_status_check_keen_call(country_code: nil, error: :no_country)
         expect_bank_status_check_keen_call(country_code: 'US')
       end
