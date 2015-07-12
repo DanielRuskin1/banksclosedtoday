@@ -57,7 +57,7 @@ describe 'country selection', type: :feature do
       expect_no_keen_call(:country_lookup_failed)
     end
 
-    it 'should not care about case' do
+    it 'should ignore case' do
       # Go to normal day
       Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
 
