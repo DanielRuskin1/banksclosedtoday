@@ -3,6 +3,9 @@ source 'https://rubygems.org'
 # Rails
 gem 'rails', '3.2.21'
 
+# Puma webserver (faster than default WEBrick)
+gem 'puma', '2.11.3'
+
 # Exception monitoring
 gem 'rollbar', '1.5.3'
 
