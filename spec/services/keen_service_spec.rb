@@ -8,41 +8,6 @@ describe KeenService do
   end
 
   describe '#track_action' do
-    # Helper method to verify that the appropriate logging occurred.
-    def verify_logging(type, occurred: true)
-      # Get expected params
-      case type
-      when :started
-        expected_params = {
-          method: :track_action,
-          status: :started,
-          action_name: 'page_visit',
-          request: @valid_request,
-          tracking_params: {}
-        }
-      when :completed
-        expected_params = {
-          method: :track_action,
-          status: :completed,
-          action_name: 'page_visit',
-          request: @valid_request,
-          tracking_params: expected_keen_params
-        }
-      else
-        fail NotImplementedError, "Unknown type #{type}!"
-      end
-
-      # Add "at" parameter to the expected_params
-      expected_params.merge!(at: 'KeenService')
-
-      # Verify that logging occurred
-      if occurred
-        expect(Scrolls).to have_received(:log).with(**expected_params)
-      else
-        expect(Scrolls).to_not have_received(:log).with(**expected_params)
-      end
-    end
-
     # Helper method to get expected params for a request
     def expected_request_params
       {
