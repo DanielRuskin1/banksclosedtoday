@@ -56,15 +56,14 @@ describe KeenService do
     end
 
     before do
-      # Spy on rollbar and scrolls during each test
-      allow(Rollbar).to receive(:error).and_call_original
+      # Spy on Scrolls during these test
       allow(Scrolls).to receive(:log).and_call_original
     end
 
     describe 'logging' do
-      after do
-        # Make sure Rollbar was not notified during the test
-        expect(Rollbar).to_not have_received(:error)
+      before do
+        # Make sure Rollbar is not notified during these tests
+        expect(Rollbar).to_not receive(:error)
       end
 
       it 'should log with the correct params when a request object is passed' do
@@ -144,6 +143,11 @@ describe KeenService do
     end
 
     describe 'error handling' do
+      before do
+        # Spy on Rollbar here
+        allow(Rollbar).to receive(:error).and_call_original
+      end
+
       it 'should rescue any exceptions and log correctly' do
         # Call the method with an invalid parameter (a String)
         # Make sure an unsuccessful result is returned

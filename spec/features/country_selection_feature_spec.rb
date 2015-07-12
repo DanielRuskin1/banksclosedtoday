@@ -5,8 +5,9 @@ describe 'country selection', type: :feature do
     # Make sure Rollbar is not notified for any exceptions during tests
     expect(Rollbar).to_not receive(:error)
 
-    # Spy on KeenService during tests
-    allow(KeenService).to receive(:track_action)
+    # Spy on KeenService and UserLocationService during tests
+    allow(KeenService).to receive(:track_action).and_call_original
+    allow(UserLocationService).to receive(:location_for_request).and_call_original
   end
 
   def expect_keen_call(occurred, call, params)
@@ -45,14 +46,14 @@ describe 'country selection', type: :feature do
   end
 
   it "should use the user's country param when provided and show correct messaging" do
-    # Make sure GEOIP is not attempted
-    expect_no_geoip
-
     # Go to normal day
     Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
 
     # Go to page with country param
     visit root_path(country_code: 'US')
+
+    # Make sure GEOIP was not attempted
+    expect_no_geoip
 
     # Make sure correct messaging is shown
     expect_open_us_day
@@ -62,14 +63,14 @@ describe 'country selection', type: :feature do
   end
 
   it 'should not care about case' do
-    # Make sure GEOIP is not attempted
-    expect_no_geoip
-
     # Go to normal day
     Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
 
     # Go to page with country param
     visit root_path(country_code: 'us')
+
+    # Make sure GEOIP was not attempted
+    expect_no_geoip
 
     # Make sure correct messaging is shown
     expect_open_us_day
@@ -82,14 +83,14 @@ describe 'country selection', type: :feature do
     # Stub GEOIP
     stub_geoip_lookup('US')
 
-    # Make sure GEOIP is attempted once
-    expect_geoip_once
-
     # Go to normal day
     Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
 
     # Go to page without country param
     visit root_path
+
+    # Make sure GEOIP was attempted once
+    expect_geoip_once
 
     # Make sure correct messaging is shown (the same as above)
     expect_open_us_day
@@ -105,14 +106,14 @@ describe 'country selection', type: :feature do
         # Stub GEOIP with unsupported country
         stub_geoip_lookup('NL')
 
-        # Make sure GEOIP is attempted once
-        expect_geoip_once
-
         # Go to normal day
         Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
 
         # Go to page without country param
         visit root_path
+
+        # Make sure GEOIP was attempted once
+        expect_geoip_once
 
         # Make sure correct messaging is shown
         expect_unsupported_country_error
@@ -122,6 +123,10 @@ describe 'country selection', type: :feature do
 
         # Try submitting a different country - an auto-submit should occur
         select('United States', from: 'country_code')
+
+        # GEOIP should not have been attempted again
+        # (e.g. and should still be at 1 call total)
+        expect_geoip_once
 
         # Make sure correct messaging is shown
         expect_open_us_day
@@ -138,14 +143,14 @@ describe 'country selection', type: :feature do
         # Stub GEOIP with unsupported country
         stub_geoip_lookup('NL')
 
-        # Make sure GEOIP is attempted once
-        expect_geoip_once
-
         # Go to normal day
         Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
 
         # Go to page without country param
         visit root_path
+
+        # Make sure GEOIP was attempted once
+        expect_geoip_once
 
         # Make sure correct messaging is shown
         expect_unsupported_country_error
@@ -155,6 +160,10 @@ describe 'country selection', type: :feature do
 
         # Manually submit form
         click_button('Go!')
+
+        # GEOIP should not have been attempted again
+        # (e.g. and should still be at 1 call total)
+        expect_geoip_once
 
         # Make sure correct messaging is shown
         expect_open_us_day
@@ -173,14 +182,14 @@ describe 'country selection', type: :feature do
         # Stub GEOIP with non-existant country
         stub_geoip_lookup('XX')
 
-        # Make sure GEOIP is attempted once
-        expect_geoip_once
-
         # Go to normal day
         Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
 
         # Go to page without country param
         visit root_path
+
+        # Make sure GEOIP was attempted once
+        expect_geoip_once
 
         # Make sure correct messaging is shown
         expect_no_country_error
@@ -190,6 +199,10 @@ describe 'country selection', type: :feature do
 
         # Try submitting a different country - an auto-submit should occur
         select('United States', from: 'country_code')
+
+        # GEOIP should not have been attempted again
+        # (e.g. and should still be at 1 call total)
+        expect_geoip_once
 
         # Make sure correct messaging is shown
         expect_open_us_day
@@ -206,14 +219,14 @@ describe 'country selection', type: :feature do
         # Stub GEOIP with non-existant country
         stub_geoip_lookup('XX')
 
-        # Make sure GEOIP is attempted once
-        expect_geoip_once
-
         # Go to normal day
         Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
 
         # Go to page without country param
         visit root_path
+
+        # Make sure GEOIP was attempted once
+        expect_geoip_once
 
         # Make sure correct messaging is shown
         expect_no_country_error
@@ -223,6 +236,10 @@ describe 'country selection', type: :feature do
 
         # Manually submit form
         click_button('Go!')
+
+        # GEOIP should not have been attempted again
+        # (e.g. and should still be at 1 call total)
+        expect_geoip_once
 
         # Make sure correct messaging is shown
         expect_open_us_day

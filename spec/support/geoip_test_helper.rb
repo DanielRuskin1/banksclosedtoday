@@ -4,9 +4,9 @@ def stub_geoip_lookup(country_code)
 end
 
 def expect_no_geoip
-  expect(UserLocationService).to_not receive(:location_for_request)
+  expect(UserLocationService).to_not have_received(:location_for_request)
 end
 
 def expect_geoip_once
-  expect(UserLocationService).to receive(:location_for_request).once.and_call_original
+  expect(UserLocationService).to have_received(:location_for_request).once
 end

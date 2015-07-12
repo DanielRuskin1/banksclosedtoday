@@ -7,14 +7,16 @@ describe 'KeenMetrics middleware', type: :feature do
     allow(Rollbar).to receive(:error).and_call_original
   end
 
+  after do
+    # Make sure Rollbar was not notified with any errors during tets
+    expect(Rollbar).to_not have_received(:error)
+  end
+
   it 'should notify Keen on each request' do
     # Go to front page with a country param
     visit root_path(country_code: 'US')
 
     # Make sure KeenService was called with the correct params
     expect(KeenService).to have_received(:track_action).with(:page_visit, request: instance_of(ActionDispatch::Request))
-
-    # Make sure Rollbar was not notified with any errors
-    expect(Rollbar).to_not have_received(:error)
   end
 end

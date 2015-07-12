@@ -2,7 +2,16 @@ require 'spec_helper'
 
 describe 'US bank holidays', type: :feature do
   before do
+    # Stub GEOIP lookup to US for this test
     stub_geoip_lookup('US')
+
+    # Spy on Rollbar for this test
+    allow(Rollbar).to receive(:error).and_call_original
+  end
+
+  after do
+    # Make sure Rollbar was not notified for any exceptions during tests
+    expect(Rollbar).to_not have_received(:error)
   end
 
   describe 'regular bank holidays' do
