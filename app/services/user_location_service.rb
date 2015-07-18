@@ -97,7 +97,7 @@ class UserLocationService
 
   ###
   # Helper method to take in HostIP XML data, then return the included country_code.
-  # If no country_code could be found, a UnknownDataFormat error will be raised.
+  # If no country_code can be found, a UnknownDataFormat error will be raised.
   def self.get_country_code_from_xml(xml_data)
     # Parse XML into Hash
     parsed_xml = Hash.from_xml(xml_data)
