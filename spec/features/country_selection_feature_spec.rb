@@ -2,11 +2,9 @@ require 'spec_helper'
 
 describe 'country selection', type: :feature do
   before do
-    # Make sure Rollbar is not notified for any exceptions during tests
-    expect(Rollbar).to_not receive(:error)
-
-    # Spy on KeenService and UserLocationService during tests
+    # Spy on KeenService, Rollbar, and UserLocationService during tests
     allow(KeenService).to receive(:track_action).and_call_original
+    allow(Rollbar).to receive(:error).and_call_original
     allow(UserLocationService).to receive(:location_for_request).and_call_original
   end
 
@@ -22,7 +20,7 @@ describe 'country selection', type: :feature do
   def expect_country_lookup_failed_keen_call(error_class, error_message, country_code: nil)
     params = {
       request: instance_of(ActionDispatch::Request),
-      tracking_params: { country_code: country_code, error: error_class.to_s, error_message: error_message}
+      tracking_params: { country_code: country_code, error: error_class.to_s, error_message: error_message }
     }
 
     expect_keen_call(:country_lookup_failed, params)
@@ -98,10 +96,13 @@ describe 'country selection', type: :feature do
       expect_country_lookup_success_keen_call
       expect_no_keen_call(:country_lookup_failed)
       expect_bank_status_check_keen_call
+
+      # Expect no Rollbar notifications
+      expect_no_rollbar
     end
 
-    context "request failure handling" do
-      it "should handle failed GEOIP requests correctly" do
+    context 'request failure handling' do
+      it 'should handle failed GEOIP requests correctly' do
         # Stub a failed GEOIP rqeuest
         stub_failed_geoip_lookup
 
@@ -115,9 +116,53 @@ describe 'country selection', type: :feature do
         expect_no_country_error
 
         # Make sure Keen was called correctly
-        expect_country_lookup_failed_keen_call(Faraday::ClientError, "the server responded with status 500")
+        expect_country_lookup_failed_keen_call(Faraday::ClientError, 'the server responded with status 500')
         expect_no_keen_call(:country_lookup_success)
         expect_bank_status_check_keen_call(country_code: nil, error: :no_country)
+      end
+
+      it 'should handle invalid XML responses correctly' do
+        # Stub a GEOIP rqeuest with invalid XML
+        stub_geoip_lookup_with_invalid_xml
+
+        # Go to page without country param
+        visit root_path
+
+        # Make sure GEOIP was attempted once
+        expect_geoip_once
+
+        # Make sure correct messaging is shown
+        expect_no_country_error
+
+        # Make sure Keen was called correctly
+        expect_country_lookup_failed_keen_call(UserLocationService::UnknownResponseFormat, 'BadXML')
+        expect_no_keen_call(:country_lookup_success)
+        expect_bank_status_check_keen_call(country_code: nil, error: :no_country)
+
+        # Make sure Rollbar was notified
+        expect(Rollbar).to have_received(:error).with(instance_of(UserLocationService::UnknownResponseFormat))
+      end
+
+      it 'should handle valid - but unexpected - XML responses correctly' do
+        # Stub a GEOIP rqeuest with unexpected XML
+        stub_geoip_lookup_with_unexpected_xml
+
+        # Go to page without country param
+        visit root_path
+
+        # Make sure GEOIP was attempted once
+        expect_geoip_once
+
+        # Make sure correct messaging is shown
+        expect_no_country_error
+
+        # Make sure Keen was called correctly
+        expect_country_lookup_failed_keen_call(UserLocationService::UnknownResponseFormat, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n<foo>Bar</foo>")
+        expect_no_keen_call(:country_lookup_success)
+        expect_bank_status_check_keen_call(country_code: nil, error: :no_country)
+
+        # Make sure Rollbar was notified
+        expect(Rollbar).to have_received(:error).with(instance_of(UserLocationService::UnknownResponseFormat))
       end
 
       it 'should handle slow GEOIP requests correctly' do
@@ -134,13 +179,21 @@ describe 'country selection', type: :feature do
         expect_no_country_error
 
         # Make sure Keen was called correctly
-        expect_country_lookup_failed_keen_call(Faraday::TimeoutError, "execution expired")
+        expect_country_lookup_failed_keen_call(Faraday::TimeoutError, 'execution expired')
         expect_no_keen_call(:country_lookup_success)
         expect_bank_status_check_keen_call(country_code: nil, error: :no_country)
+
+        # Expect no Rollbar notifications
+        expect_no_rollbar
       end
     end
 
     context 'when an unsupported country is found' do
+      after do
+        # Rollbar should not be called during any of these tests
+        expect_no_rollbar
+      end
+
       context 'when Javascript is enabled', js: true do
         it 'should ask the user to email for support, or provide a different country' do
           # Stub GEOIP with unsupported country
@@ -219,6 +272,11 @@ describe 'country selection', type: :feature do
     end
 
     context 'when a country is not found' do
+      after do
+        # Rollbar should not be called during any of these tests
+        expect_no_rollbar
+      end
+
       context 'when Javascript is enabled', js: true do
         it 'should ask the user to provide one' do
           # Stub GEOIP with non-existant country
@@ -250,7 +308,7 @@ describe 'country selection', type: :feature do
           expect_open_us_day
 
           # Make sure KeenService was called correctly
-          expect_country_lookup_failed_keen_call(UserLocationService::ReceivedBadCountryError, "XX")
+          expect_country_lookup_failed_keen_call(UserLocationService::ReceivedBadCountryError, 'XX')
           expect_no_keen_call(:country_lookup_success)
           expect_bank_status_check_keen_call(country_code: nil, error: :no_country)
           expect_bank_status_check_keen_call(country_code: 'US')
@@ -288,7 +346,7 @@ describe 'country selection', type: :feature do
           expect_open_us_day
 
           # Make sure KeenService was called correctly
-          expect_country_lookup_failed_keen_call(UserLocationService::ReceivedBadCountryError, "XX")
+          expect_country_lookup_failed_keen_call(UserLocationService::ReceivedBadCountryError, 'XX')
           expect_no_keen_call(:country_lookup_success)
           expect_bank_status_check_keen_call(country_code: nil, error: :no_country)
           expect_bank_status_check_keen_call(country_code: 'US')

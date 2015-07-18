@@ -1,3 +1,4 @@
+# Controller for checking bank statuses; only index is implemented at the moment
 class BanksController < ApplicationController
   def index
     # If the user passed in a country_code, get a UserLocation based on the provided param

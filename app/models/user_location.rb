@@ -1,3 +1,7 @@
+# Class to represent a user's location.
+# Country objects are only used for supported locations,
+# but UserLocations can also represent unsupported locations
+# (e.g. if a user visits the site from an unsupported country).
 class UserLocation
   attr_accessor :country_code
 

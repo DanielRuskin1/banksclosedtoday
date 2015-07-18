@@ -1,3 +1,4 @@
+# Middleware to track all requests with KeenService
 class KeenMetrics
   def initialize(app)
     @app = app

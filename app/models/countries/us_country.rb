@@ -1,3 +1,4 @@
+# Country class for the United States
 class UsCountry < Country
   def self.code
     'US'

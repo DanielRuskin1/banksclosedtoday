@@ -1,3 +1,4 @@
+# Country helper for views; currently used to get a list of countries to display in dropdowns
 module CountryHelper
   def supported_country_select_options
     # Generate options hash

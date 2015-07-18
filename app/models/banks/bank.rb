@@ -1,3 +1,4 @@
+# Represents a Bank in a given country; currently used to store information on Banks (e.g. scheduling logic).
 class Bank
   # Generic "the weekend" closure reason
   THE_WEEKEND_CLOSURE_MESSAGE = 'the weekend'

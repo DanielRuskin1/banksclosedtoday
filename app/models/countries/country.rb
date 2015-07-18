@@ -1,3 +1,4 @@
+# Class for supported country data; country-specific information stored in subclasses
 class Country
   # Base exception class for Country errors
   class CountryError < StandardError; end

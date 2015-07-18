@@ -11,7 +11,7 @@ describe 'US bank holidays', type: :feature do
 
   after do
     # Make sure Rollbar was not notified for any exceptions during tests
-    expect(Rollbar).to_not have_received(:error)
+    expect_no_rollbar
   end
 
   describe 'regular bank holidays' do

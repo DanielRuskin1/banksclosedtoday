@@ -9,7 +9,7 @@ describe 'KeenMetrics middleware', type: :feature do
 
   after do
     # Make sure Rollbar was not notified with any errors during tets
-    expect(Rollbar).to_not have_received(:error)
+    expect_no_rollbar
   end
 
   it 'should notify Keen on each request' do

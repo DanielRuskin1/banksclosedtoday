@@ -1,0 +1,10 @@
+AllCops:
+  Excludes:
+    - config/**
+    - spec/**
+
+Metrics/MethodLength:
+  Max: 20
+
+Metrics/LineLength:
+  Max: 150

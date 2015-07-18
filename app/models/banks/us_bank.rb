@@ -1,3 +1,4 @@
+# Bank for the United States; implements Federal Reserve Bank scheduling
 class UsBank < Bank
   def self.schedule_name
     'Federal Reserve Bank'
