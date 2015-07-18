@@ -15,8 +15,11 @@ gem 'holidays', '2.2.0'
 # NewRelic site monitoring
 gem 'newrelic_rpm', '3.12.1.298'
 
-# Robust logging
+# Logging
 gem 'scrolls', '0.3.8'
+
+# Web requests (see UserLocationService)
+gem 'faraday', '0.9.1'
 
 group :production do
   # Metrics/analytics

@@ -1,7 +1,7 @@
 # UserLocationService is used to perform GEOIP lookups on users.  This allows us to serve country-specific messaging.
 class UserLocationService
   # Service to use for GEOIP lookups
-  GEOIP_SERVICE_URL = 'http://api.hostip.info/country.php?ip=%s'
+  GEOIP_SERVICE_URL = 'http://api.hostip.info'
 
   # Country code that, if received by the HostIP.info service, indicates a malformed request
   HOSTIP_INVALID_COUNTRY_CODE = 'XX'
@@ -18,14 +18,9 @@ class UserLocationService
   # 2. The error will be "hidden" - a blank UserLocation will be returned
   # Other error types will not be rescued.
   REQUEST_EXCEPTIONS_TO_RESCUE = [
-    URI::InvalidURIError, # Malformed IP or URI
-    Timeout::Error, # Request took too long
-    Errno::EINVAL, # Net:HTTP error
-    Errno::ECONNRESET, # Net:HTTP error
-    EOFError, # Net:HTTP error
-    Net::HTTPBadResponse, # Net:HTTP error
-    Net::HTTPHeaderSyntaxError, # Net:HTTP error
-    Net::ProtocolError, # Net:HTTP error
+    Faraday::TimeoutError, # Request timed out
+    Faraday::ConnectionFailed, # Connection failed (e.g. due to the server being down)
+    Faraday::ClientError, # Request failed (e.g. due to 500 error)
     NoRemoteIpError, # remote_ip is nil - this could occur if the method is called for a malformed request in BanksController
     ReceivedBadCountryError # Bad country returned by GEOIP service,
   ]
@@ -52,25 +47,40 @@ class UserLocationService
     # Track with Keen
     KeenService.track_action(:country_lookup_failed,
                              request: request,
-                             tracking_params: { country_code: country_code, error: e.class.to_s })
+                             tracking_params: { country_code: country_code, error: e.class.to_s, error_message: e.message })
 
     # Return a blank UserLocation object
     UserLocation.new
   end
 
+  # Helper method to send a GEOIP lookup request with the given remote IP
+  REQUEST_TIMEOUT = 1.second # Timeout requests in 1 second
   def self.send_request_with_remote_ip(remote_ip)
     # Generate URI
     uri_to_request = URI.parse(GEOIP_SERVICE_URL % remote_ip)
 
     # Run request and get result
-    country_code = Net::HTTP.get_response(uri_to_request).body
+    country_code = faraday_connection.get do |req|
+      req.url "/" # Base path
+      req.params[:ip] = remote_ip # IP to search for
+      req.options.timeout = REQUEST_TIMEOUT # Read timeout
+      req.options.open_timeout = REQUEST_TIMEOUT # Open timeout
+    end.body
 
     # If the request was successful, return the result.
     # Otherwise, raise an exception.
     if country_code == HOSTIP_INVALID_COUNTRY_CODE
-      fail ReceivedBadCountryError
+      fail ReceivedBadCountryError, country_code
     else
       country_code
+    end
+  end
+
+  # Helper method that returns a Faraday connection to the GEOIP service
+  def self.faraday_connection
+    @conn ||= Faraday.new(url: GEOIP_SERVICE_URL) do |conn|
+      conn.use Faraday::Response::RaiseError # Raise an exception for 40x/50x responses
+      conn.use Faraday::Adapter::NetHttp
     end
   end
 end
