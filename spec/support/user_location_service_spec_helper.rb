@@ -1,13 +1,14 @@
 def stub_geoip_lookup(country_code)
   # Get HostIP sample response, and add the country_code
-  file_name = File.join(
-    File.dirname(__FILE__),
-    '../fixtures/geoip_lookup/hostip_response.xml')
+  file_name = File.join(File.dirname(__FILE__), '../fixtures/geoip_lookup/hostip_response.xml')
   response_body = File.read(file_name) % { country_code: country_code }
 
   # Stub request with body
   stub_request(:get, /api.hostip.info/)
     .to_return(status: 200, body: response_body, headers: {})
+
+  # Return expected body
+  response_body
 end
 
 def stub_failed_geoip_lookup
@@ -15,21 +16,21 @@ def stub_failed_geoip_lookup
     .to_return(status: 500, body: '', headers: {})
 end
 
-def stub_geoip_lookup_with_invalid_xml
-  stub_request(:get, /api.hostip.info/)
-    .to_return(status: 200, body: 'BadXML', headers: {})
-end
+def stub_invalid_format_geoip_lookup(type)
+  # Get the response_body to use
+  if type == "invalid_xml"
+    response_body = "BadXML"
+  else
+    file_name = File.join(File.dirname(__FILE__), "../fixtures/geoip_lookup/#{type}_hostip_response.xml")
+    response_body = File.read(file_name)
+  end
 
-def stub_geoip_lookup_with_unexpected_xml
-  # Get HostIP sample unexpected response, and add the country_code
-  file_name = File.join(
-    File.dirname(__FILE__),
-    '../fixtures/geoip_lookup/unexpected_hostip_response.xml')
-  response_body = File.read(file_name)
-
-  # Stub request with body
+  # Stub request
   stub_request(:get, /api.hostip.info/)
     .to_return(status: 200, body: response_body, headers: {})
+
+  # Return expected body
+  response_body
 end
 
 def stub_slow_geoip_lookup

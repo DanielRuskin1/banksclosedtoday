@@ -9,7 +9,6 @@ class UserLocationService
   # Base exception class for UserCountryService errors
   class UserLocationServiceError < StandardError; end
   class UnknownResponseFormat < UserLocationServiceError; end # Exception for GEOIP response data that is in an unknown format
-  class NoRemoteIpError < UserLocationServiceError; end # Exception for a blank remote_ip
   class ReceivedBadCountryError < UserLocationServiceError; end # Exception for an invalid country from the GEOIP service (HOSTIP_INVALID_COUNTRY_CODE)
 
   ###
@@ -19,10 +18,6 @@ class UserLocationService
   # 2. The error will be "hidden" - a blank UserLocation will be returned
   # Other error types will not be rescued.
   EXCEPTIONS_TO_RESCUE = [
-    Faraday::TimeoutError, # Request timed out
-    Faraday::ConnectionFailed, # Connection failed (e.g. due to the server being down)
-    Faraday::ClientError, # Request failed (e.g. due to 500 error)
-    NoRemoteIpError, # remote_ip is nil - this could occur if the method is called for a malformed request in BanksController
     ReceivedBadCountryError # Bad country returned by GEOIP service,
   ]
 
@@ -30,6 +25,9 @@ class UserLocationService
   # Errors that are expected to occur, but that should still result in a Rollbar notifications.
   # These exceptions will still be rescued, and the error will be "hidden" to the caller (with a blank UserLocation).
   EXCEPTIONS_TO_RESCUE_AND_NOTIFY = [
+    Faraday::TimeoutError, # Request timed out
+    Faraday::ConnectionFailed, # Connection failed (e.g. due to the server being down)
+    Faraday::ClientError, # Request failed (e.g. due to 500 error)
     UnknownResponseFormat # GEOIP response data is in an unknown format
   ]
 
@@ -55,7 +53,7 @@ class UserLocationService
     # Track with Keen
     KeenService.track_action(:country_lookup_failed,
                              request: request,
-                             tracking_params: { country_code: country_code, error: e.class.to_s, error_message: e.message })
+                             tracking_params: { country_code: country_code, error: e.class.to_s })
 
     # Notify Rollbar if necessary
     Rollbar.error(e) if EXCEPTIONS_TO_RESCUE_AND_NOTIFY.include?(e.class)
