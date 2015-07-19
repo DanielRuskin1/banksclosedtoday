@@ -18,8 +18,8 @@ end
 
 def stub_invalid_format_geoip_lookup(type)
   # Get the response_body to use
-  if type == "invalid_xml"
-    response_body = "BadXML"
+  if type == 'invalid_xml'
+    response_body = 'BadXML'
   else
     file_name = File.join(File.dirname(__FILE__), "../fixtures/geoip_lookup/#{type}_hostip_response.xml")
     response_body = File.read(file_name)

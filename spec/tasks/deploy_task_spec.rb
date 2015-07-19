@@ -4,7 +4,7 @@ require 'rake'
 describe 'deploy task' do
   before(:all) do
     # Load deploy task
-    Rake.application.rake_require("tasks/deploy")
+    Rake.application.rake_require('tasks/deploy')
   end
 
   before do
@@ -20,20 +20,20 @@ describe 'deploy task' do
 
   # Helper method to run the task
   def run_rake_task
-    Rake::Task["deploy"].reenable
-    Rake.application.invoke_task("deploy")
+    Rake::Task['deploy'].reenable
+    Rake.application.invoke_task('deploy')
   end
 
-  context "when tests fail" do
-    ["2392 examples, 111 failures", "35 examples, 10 failures", "20 examples, 1 failure", "WeirdSample"].each do |failure_result_string|
+  context 'when tests fail' do
+    ['2392 examples, 111 failures', '35 examples, 10 failures', '20 examples, 1 failure', 'WeirdSample'].each do |failure_result_string|
       it "should abort for #{failure_result_string}" do
         # Stub run_tests to return the relevant failure result string
         allow(DeployCommands).to receive(:run_tests).and_return(failure_result_string)
 
         # Run task and make sure it raises a DeployError
-        expect {
+        expect do
           run_rake_task
-        }.to raise_error(DeployError, "Tests did not pass!")
+        end.to raise_error(DeployError, 'Tests did not pass!')
 
         # Make sure that
         # 1. DeployCommands.run_tests was called,
@@ -44,22 +44,22 @@ describe 'deploy task' do
     end
   end
 
-  context "when tests pass" do
+  context 'when tests pass' do
     before do
       # Stub run_tests to return a success
-      allow(DeployCommands).to receive(:run_tests).and_return("35 examples, 0 failures")
+      allow(DeployCommands).to receive(:run_tests).and_return('35 examples, 0 failures')
     end
 
-    context "when the user declines the deploy" do
-      ["deploy", "decline", "DECLINE"].each do |decline_string|
+    context 'when the user declines the deploy' do
+      %w(deploy decline DECLINE).each do |decline_string|
         it "should abort for #{decline_string}" do
           # Stub STDIN.gets to return the decline string
           allow(STDIN).to receive(:gets).and_return(decline_string)
 
           # Run task and make sure it raises a DeployError
-          expect {
+          expect do
             run_rake_task
-          }.to raise_error(DeployError, "User declined deploy!")
+          end.to raise_error(DeployError, 'User declined deploy!')
 
           # Make sure that
           # 1. DeployCommands.run_tests was called,
@@ -72,13 +72,13 @@ describe 'deploy task' do
       end
     end
 
-    context "when the user accepts the deploy" do
+    context 'when the user accepts the deploy' do
       before do
         # Stub STDIN.gets to return the accept string
-        allow(STDIN).to receive(:gets).and_return("DEPLOY")
+        allow(STDIN).to receive(:gets).and_return('DEPLOY')
       end
 
-      it "should deploy" do
+      it 'should deploy' do
         # Run task
         run_rake_task
 

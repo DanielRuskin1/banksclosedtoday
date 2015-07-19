@@ -1,7 +1,7 @@
 AllCops:
   Excludes:
-    - config/**
-    - spec/**
+    - config/**/*
+    - spec/**/*
 
 Metrics/MethodLength:
   Max: 20

@@ -28,7 +28,7 @@ describe 'country discovery', type: :feature do
       expect_open_us_day
 
       # Make sure KeenService was called correctly
-      expect_bank_status_check_keen_call("US")
+      expect_bank_status_check_keen_call('US')
       expect_no_keen_call(:country_lookup_success)
       expect_no_keen_call(:country_lookup_failed)
     end
@@ -47,7 +47,7 @@ describe 'country discovery', type: :feature do
       expect_open_us_day
 
       # Make sure KeenService was called correctly
-      expect_bank_status_check_keen_call("US")
+      expect_bank_status_check_keen_call('US')
       expect_no_keen_call(:country_lookup_success)
       expect_no_keen_call(:country_lookup_failed)
     end
@@ -73,7 +73,7 @@ describe 'country discovery', type: :feature do
       # Make sure KeenService was called correctly
       expect_country_lookup_success_keen_call
       expect_no_keen_call(:country_lookup_failed)
-      expect_bank_status_check_keen_call("US")
+      expect_bank_status_check_keen_call('US')
 
       # Expect no Rollbar notifications
       expect_no_rollbar_notifications
@@ -102,8 +102,8 @@ describe 'country discovery', type: :feature do
         expect_rollbar_call(Faraday::ResourceNotFound)
       end
 
-      ["invalid_xml", "no_result_set_element", "no_feature_member_element", "no_hostip_element", "no_country_code_element"].each do |type|
-        it "should handle foo format responses correctly" do
+      %w(invalid_xml no_result_set_element no_feature_member_element no_hostip_element no_country_code_element).each do |type|
+        it 'should handle foo format responses correctly' do
           # Stub a GEOIP rqeuest with the relevant type;
           # store the stubbed response body in a variable.
           response_body = stub_invalid_format_geoip_lookup(type)

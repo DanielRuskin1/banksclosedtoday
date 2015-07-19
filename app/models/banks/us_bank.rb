@@ -42,15 +42,23 @@ class UsBank < Bank
     # Get any holiday names today
     holidays_today = get_applicable_holiday_names_for_day(time_to_check)
 
-    # If today is Friday, get any Saturday holiday names.
-    # Otherwise, if today is Monday, get any Sunday holiday names.
-    if time_to_check.friday?
-      holidays_today += get_applicable_holiday_names_for_day(time_to_check + 1.day)
-    elsif time_to_check.monday?
-      holidays_today += get_applicable_holiday_names_for_day(time_to_check - 1.day)
-    end
-
     # If any holidays are present, return the holidays as a sentence.
     holidays_today.to_sentence if holidays_today.any?
+  end
+
+  ###
+  # For US banks, the following logic should be used when getting applicable holidays for a given day:
+  # 1. Start with all holidays for the day.
+  # 2. If the day is a Friday, add all holidays on the following Saturday.
+  # 3. If the day is a Monday, add all holidays from the preceding Sunday.
+  # This is the logic followed by the Federal Reserve.
+  def self.get_applicable_holiday_names_for_day(day)
+    # Get list of holidays
+    holidays_today = super
+    holidays_today += super(day + 1.day) if day.friday?
+    holidays_today += super(day - 1.day) if day.monday?
+
+    # Return
+    holidays_today
   end
 end

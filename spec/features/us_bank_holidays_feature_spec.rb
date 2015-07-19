@@ -85,7 +85,7 @@ describe 'US bank holidays', type: :feature do
       # Verify that correct messaging is displayed
       expect_holiday_us_day(['Independence Day'])
 
-      # Test November 10th, 2017 (Saturday before Veterans day)
+      # Test November 10th, 2017 (Friday before Veterans day)
       Timecop.travel(Time.parse('November 10, 2017').in_time_zone('Eastern Time (US & Canada)'))
 
       # Go to banks#index page
