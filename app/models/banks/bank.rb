@@ -46,7 +46,7 @@ class Bank
   # The applicable_holiday_regions and observed_holidays for the region are taken into account.
   def self.get_applicable_holiday_names_for_day(day)
     day.holidays(applicable_holiday_regions).map do |holiday|
-      # Include the holiday's name, if it's an observed holiday.
+      # Include the holiday's name, but only if it's an observed holiday.
       holiday[:name] if observed_holidays.include?(holiday[:name])
     end.compact.uniq
   end
