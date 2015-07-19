@@ -13,8 +13,8 @@ task :deploy do
   end
 
   # Prompt user to accept deploy
-  DeployCommands.output('Please review the above tests results.')
-  DeployCommands.output("If they are acceptable, type #{ACCEPT_DEPLOY_TEXT}.")
+  DeployCommands.output('Please review the tests results above.')
+  DeployCommands.output("If they are acceptable, type #{ACCEPT_DEPLOY_TEXT} to start the deploy.")
 
   # If the user accepts the deploy, deploy.
   # Otherwise, abort.

@@ -8,7 +8,7 @@ describe 'weekends', :feature do
 
   after do
     # Make sure Rollbar was not notified for any exceptions during tests
-    expect_no_rollbar
+    expect_no_rollbar_notifications
   end
 
   context 'US' do

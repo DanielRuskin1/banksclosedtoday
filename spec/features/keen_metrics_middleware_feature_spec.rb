@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'KeenMetrics middleware', type: :feature do
+describe 'KeenMetricsMiddleware', type: :feature do
   before do
     # Spy on KeenService and Rollbar during this test
     spy_on_keen
@@ -8,8 +8,8 @@ describe 'KeenMetrics middleware', type: :feature do
   end
 
   after do
-    # Make sure Rollbar was not notified with any errors during tets
-    expect_no_rollbar
+    # Make sure Rollbar was not notified with any errors during tests
+    expect_no_rollbar_notifications
   end
 
   it 'should notify Keen on each request' do

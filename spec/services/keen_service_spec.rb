@@ -29,7 +29,7 @@ describe KeenService do
     describe 'logging' do
       after do
         # Make sure Rollbar was not notified during any tests
-        expect_no_rollbar
+        expect_no_rollbar_notifications
       end
 
       it 'should log with the correct params when a request object is passed' do

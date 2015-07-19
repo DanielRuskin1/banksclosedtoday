@@ -37,10 +37,28 @@ def stub_slow_geoip_lookup
   stub_request(:get, /api.hostip.info/).to_timeout
 end
 
-def expect_no_geoip
+def expect_country_lookup_success_keen_call(country_code: 'US')
+  params = {
+    request: instance_of(ActionDispatch::Request),
+    tracking_params: { country_code: country_code }
+  }
+
+  expect_keen_call(:country_lookup_success, params)
+end
+
+def expect_country_lookup_failed_keen_call(error_class, country_code: nil)
+  params = {
+    request: instance_of(ActionDispatch::Request),
+    tracking_params: { country_code: country_code, error: error_class.to_s }
+  }
+
+  expect_keen_call(:country_lookup_failed, params)
+end
+
+def expect_no_geoip_requests
   expect(UserLocationService).to_not have_received(:location_for_request)
 end
 
-def expect_geoip_once
+def expect_one_geoip_request
   expect(UserLocationService).to have_received(:location_for_request).once
 end
