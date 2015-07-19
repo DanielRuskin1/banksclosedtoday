@@ -36,9 +36,6 @@ class UserLocationService
   # Error types specified in REQUEST_EXCEPTIONS_TO_RESCUE will be rescued, and a blank UserLocation will be returned.
   # Other error types will be raised.
   def self.location_for_request(request)
-    # Validate parameter
-    fail ArgumentError, "Invalid parameter #{request}!" unless request.is_a?(Rack::Request)
-
     # Get country_code for the IP
     country_code = send_request_with_remote_ip(request.remote_ip)
 
@@ -48,7 +45,7 @@ class UserLocationService
                              tracking_params: { country_code: country_code })
 
     # Return a UserLocation object with the country_code
-    UserLocation.new(country_code: country_code)
+    UserLocationServiceResponse.new(success: true, country_code: country_code)
   rescue *(EXCEPTIONS_TO_RESCUE + EXCEPTIONS_TO_RESCUE_AND_NOTIFY) => exception
     # Track with Keen
     KeenService.track_action(:country_lookup_failed,
@@ -61,7 +58,7 @@ class UserLocationService
     end
 
     # Return a blank UserLocation object
-    UserLocation.new
+    UserLocationServiceResponse.new(success: false)
   end
 
   # Helper method to send a GEOIP lookup request with the given remote IP
@@ -123,5 +120,15 @@ class UserLocationService
   rescue REXML::ParseException
     # The response data was not in XML
     raise UnknownResponseFormat, xml_data
+  end
+
+  # Wrapper for UserLocationService responses.
+  class UserLocationServiceResponse
+    attr_accessor :success, :country_code
+
+    def initialize(options = {})
+      @success = options[:success]
+      @country_code = options[:country_code]
+    end
   end
 end

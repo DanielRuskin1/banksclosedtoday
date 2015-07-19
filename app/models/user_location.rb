@@ -1,12 +1,15 @@
 # Class to represent a user's location.
-# Country objects are only used for supported locations,
-# but UserLocations can also represent unsupported locations
-# (e.g. if a user visits the site from an unsupported country).
 class UserLocation
-  attr_accessor :country_code
+  attr_accessor :request, :country_code
 
   def initialize(options = {})
-    @country_code = options[:country_code]
+    # Set the request and country_code
+    @request = options[:request]
+    @country_code = options[:country_code].try(:upcase) # Ignore case
+
+    # If a request is present, but the country_code is not yet set,
+    # perform a GEOIP lookup.
+    @country_code ||= UserLocationService.location_for_request(@request).country_code if @request
   end
 
   ###

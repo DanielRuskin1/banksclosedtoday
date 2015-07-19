@@ -3,17 +3,13 @@ class BanksController < ApplicationController
   def index
     # If the user passed in a country_code, get a UserLocation based on the provided param
     # Otherwise, get one based on their IP address.
-    if params[:country_code]
-      user_location = UserLocation.new(country_code: params[:country_code].upcase)
-    else
-      user_location = UserLocationService.location_for_request(request)
-    end
+    user_location = UserLocation.new(request: request, country_code: params[:country_code])
 
     # Get the UserLocation's Country
     @country = user_location.country
 
-    # If a Country was found, get the Bank closure reason.
     if @country
+      # If a Country was found, get the bank closure reason.
       @bank_closure_reason = @country.bank.bank_closure_reason
     else
       # If a Country was not found, two errors could have occurred:
