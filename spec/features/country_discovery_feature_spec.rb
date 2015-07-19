@@ -3,8 +3,8 @@ require 'spec_helper'
 describe 'country selection', type: :feature do
   before do
     # Spy on KeenService, Rollbar, and UserLocationService during tests
-    allow(KeenService).to receive(:track_action).and_call_original
-    allow(Rollbar).to receive(:error).and_call_original
+    spy_on_keen
+    spy_on_rollbar
     allow(UserLocationService).to receive(:location_for_request).and_call_original
   end
 
@@ -36,6 +36,11 @@ describe 'country selection', type: :feature do
   end
 
   context 'when a user provides a country_code param' do
+    after do
+      # Expect no Rollbar notifications
+      expect_no_rollbar
+    end
+
     it 'should use the param and show correct messaging' do
       # Go to normal day
       Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
@@ -121,7 +126,7 @@ describe 'country selection', type: :feature do
         expect_bank_status_check_keen_call(country_code: nil, error: :no_country)
 
         # Make sure Rollbar was notified
-        expect(Rollbar).to have_received(:error).with(instance_of(Faraday::ClientError))
+        expect_rollbar_call(Faraday::ClientError)
       end
 
       ["invalid_xml", "no_result_set_element", "no_feature_member_element", "no_hostip_element", "no_country_code_element"].each do |type|
@@ -145,7 +150,7 @@ describe 'country selection', type: :feature do
           expect_bank_status_check_keen_call(country_code: nil, error: :no_country)
 
           # Make sure Rollbar was notified
-          expect(Rollbar).to have_received(:error).with(instance_of(UserLocationService::UnknownResponseFormat))
+          expect_rollbar_call(UserLocationService::UnknownResponseFormat)
         end
       end
 
@@ -168,7 +173,7 @@ describe 'country selection', type: :feature do
         expect_bank_status_check_keen_call(country_code: nil, error: :no_country)
 
         # Make sure Rollbar was notified
-        expect(Rollbar).to have_received(:error).with(instance_of(Faraday::TimeoutError))
+        expect_rollbar_call(Faraday::TimeoutError)
       end
     end
 

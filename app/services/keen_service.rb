@@ -36,16 +36,15 @@ class KeenService
     # Verify that request is valid
     fail ArgumentError, "Invalid parameter #{request}!" unless request.is_a?(Rack::Request)
 
-    # Generate Keen params
-    tracking_params = {}
-    tracking_params[:request] = {}
-    tracking_params[:request][:uuid] = request.uuid
-    tracking_params[:request][:remote_ip] = request.remote_ip
-    tracking_params[:request][:user_agent] = request.user_agent
-    tracking_params[:request][:url] = request.url
-
-    # Return generated params
-    tracking_params
+    # Generate and return Keen params
+    {
+      request: {
+        uuid: request.uuid,
+        remote_ip: request.remote_ip,
+        user_agent: request.user_agent,
+        url: request.url
+      }
+    }
   end
 
   # Helper method to log requests to KeenService requests.

@@ -7,7 +7,7 @@
  </gml:boundedBy>
  <gml:featureMember>
   <Hostip>
-   <ip>0.0.0.0</ip>
+   <ip>127.0.0.1</ip>
    <gml:name>(Unknown city)</gml:name>
    <countryName>Some Country Name</countryName>
    <countryAbbrev>%{country_code}</countryAbbrev>

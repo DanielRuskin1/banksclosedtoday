@@ -6,7 +6,7 @@
   <gml:Null>inapplicable</gml:Null>
  </gml:boundedBy>
  <gml:featureMember>
-  <ip>0.0.0.0</ip>
+  <ip>127.0.0.1</ip>
   <gml:name>(Unknown city)</gml:name>
   <countryName>Some Country Name</countryName>
   <countryAbbrev>US</countryAbbrev>

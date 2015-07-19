@@ -6,7 +6,7 @@ describe 'US bank holidays', type: :feature do
     stub_geoip_lookup('US')
 
     # Spy on Rollbar for this test
-    allow(Rollbar).to receive(:error).and_call_original
+    spy_on_rollbar
   end
 
   after do

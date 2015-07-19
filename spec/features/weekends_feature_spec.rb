@@ -3,7 +3,7 @@ require 'spec_helper'
 describe 'weekends', :feature do
   before do
     # Spy on Rollbar for this test
-    allow(Rollbar).to receive(:error).and_call_original
+    spy_on_rollbar
   end
 
   after do

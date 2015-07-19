@@ -23,7 +23,7 @@ describe KeenService do
     before do
       # Spy on Scrolls and Rollbar during these tests
       allow(Scrolls).to receive(:log).and_call_original
-      allow(Rollbar).to receive(:error).and_call_original
+      spy_on_rollbar
     end
 
     describe 'logging' do
@@ -125,7 +125,7 @@ describe KeenService do
         expect(Scrolls).to have_received(:log).with(**expected_started_log)
 
         # Make sure Rollbar was notified with an ArgumentError
-        expect(Rollbar).to have_received(:error).with(instance_of(ArgumentError))
+        expect_rollbar_call(ArgumentError)
       end
     end
   end

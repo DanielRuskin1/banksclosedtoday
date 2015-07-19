@@ -9,7 +9,7 @@ class UserLocationService
   # Base exception class for UserCountryService errors
   class UserLocationServiceError < StandardError; end
   class UnknownResponseFormat < UserLocationServiceError; end # Exception for GEOIP response data that is in an unknown format
-  class ReceivedBadCountryError < UserLocationServiceError; end # Exception for an invalid country from the GEOIP service (HOSTIP_INVALID_COUNTRY_CODE)
+  class ReceivedBadCountryError < UserLocationServiceError; end # Exception for when HOSTIP_INVALID_COUNTRY_CODE is returned by the GEOIP service
 
   ###
   # Expected errors to rescue in the country method

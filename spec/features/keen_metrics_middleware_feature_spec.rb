@@ -3,8 +3,8 @@ require 'spec_helper'
 describe 'KeenMetrics middleware', type: :feature do
   before do
     # Spy on KeenService and Rollbar during this test
-    allow(KeenService).to receive(:track_action).and_call_original
-    allow(Rollbar).to receive(:error).and_call_original
+    spy_on_keen
+    spy_on_rollbar
   end
 
   after do
@@ -17,6 +17,6 @@ describe 'KeenMetrics middleware', type: :feature do
     visit root_path(country_code: 'US')
 
     # Make sure KeenService was called with the correct params
-    expect(KeenService).to have_received(:track_action).with(:page_visit, request: instance_of(ActionDispatch::Request))
+    expect_keen_call(:page_visit, request: instance_of(ActionDispatch::Request))
   end
 end
