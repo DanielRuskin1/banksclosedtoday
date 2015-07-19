@@ -27,6 +27,9 @@ group :production do
 
   # Async event processing
   gem 'em-http-request', '1.1.2'
+
+  # Necessary for asset serving and logging on Heroku
+  gem 'rails_12factor', '0.0.3'
 end
 
 # Gems used only for assets and not required

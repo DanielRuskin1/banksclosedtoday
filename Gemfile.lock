@@ -116,6 +116,11 @@ GEM
       activesupport (= 3.2.21)
       bundler (~> 1.0)
       railties (= 3.2.21)
+    rails_12factor (0.0.3)
+      rails_serve_static_assets
+      rails_stdout_logging
+    rails_serve_static_assets (0.0.4)
+    rails_stdout_logging (0.0.3)
     railties (3.2.21)
       actionpack (= 3.2.21)
       activesupport (= 3.2.21)
@@ -187,7 +192,7 @@ GEM
     webmock (1.21.0)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
-    websocket-driver (0.6.1)
+    websocket-driver (0.6.2)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.2)
     xpath (2.0.0)
@@ -208,6 +213,7 @@ DEPENDENCIES
   newrelic_rpm (= 3.12.1.298)
   poltergeist (= 1.6.0)
   rails (= 3.2.21)
+  rails_12factor (= 0.0.3)
   rollbar (= 1.5.3)
   rspec-rails (= 3.3.2)
   rubocop (= 0.32.1)
