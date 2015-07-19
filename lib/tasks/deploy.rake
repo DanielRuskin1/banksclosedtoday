@@ -21,6 +21,7 @@ end
 # 1. Checking whether any uncommited changes are present in git, and
 # 2. Raising an exception if so.
 def check_for_uncommited_changes
+  # git_status will return a list of any modified/uncommited files.
   fail DeployError, 'Please commit changes before deploying.' if DeployCommands.git_status.present?
 end
 
