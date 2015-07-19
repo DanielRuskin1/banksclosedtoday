@@ -13,7 +13,7 @@ end
 
 def stub_failed_geoip_lookup
   stub_request(:get, /api.hostip.info/)
-    .to_return(status: 500, body: '', headers: {})
+    .to_return(status: 404, body: '', headers: {})
 end
 
 def stub_invalid_format_geoip_lookup(type)

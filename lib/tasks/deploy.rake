@@ -1,6 +1,6 @@
 TESTS_FAILED_REGEX = /, [^0].* failure/ # If this matches, the task will assume that tests failed
 TESTS_PASSED_REGEX = /0 failures/
-ACCEPT_DEPLOY_TEXT = "DEPLOY" # Text user has to enter to accept the deploy
+ACCEPT_DEPLOY_TEXT = 'DEPLOY' # Text user has to enter to accept the deploy
 
 task :deploy do
   # Run tests and output result
@@ -9,7 +9,7 @@ task :deploy do
 
   # Fail deploy if any strings matching "(non-zero-number) failure" occurred
   if test_result.match(TESTS_FAILED_REGEX) || !test_result.match(TESTS_PASSED_REGEX)
-    raise DeployError, "Tests did not pass!"
+    fail DeployError, 'Tests did not pass!'
   end
 
   # Prompt user to accept deploy
@@ -21,7 +21,7 @@ task :deploy do
   if STDIN.gets.strip == ACCEPT_DEPLOY_TEXT
     DeployCommands.run_deploy
   else
-    raise DeployError, "User declined deploy!"
+    fail DeployError, 'User declined deploy!'
   end
 end
 

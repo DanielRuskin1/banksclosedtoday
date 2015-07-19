@@ -49,14 +49,16 @@ class UserLocationService
 
     # Return a UserLocation object with the country_code
     UserLocation.new(country_code: country_code)
-  rescue *(EXCEPTIONS_TO_RESCUE + EXCEPTIONS_TO_RESCUE_AND_NOTIFY) => e
+  rescue *(EXCEPTIONS_TO_RESCUE + EXCEPTIONS_TO_RESCUE_AND_NOTIFY) => exception
     # Track with Keen
     KeenService.track_action(:country_lookup_failed,
                              request: request,
-                             tracking_params: { country_code: country_code, error: e.class.to_s })
+                             tracking_params: { country_code: country_code, error: exception.class.to_s })
 
     # Notify Rollbar if necessary
-    Rollbar.error(e) if EXCEPTIONS_TO_RESCUE_AND_NOTIFY.include?(e.class)
+    if EXCEPTIONS_TO_RESCUE_AND_NOTIFY.any? { |type| exception.is_a?(type) }
+      Rollbar.error(exception)
+    end
 
     # Return a blank UserLocation object
     UserLocation.new

@@ -121,12 +121,12 @@ describe 'country selection', type: :feature do
         expect_no_country_error
 
         # Make sure Keen was called correctly
-        expect_country_lookup_failed_keen_call(Faraday::ClientError)
+        expect_country_lookup_failed_keen_call(Faraday::ResourceNotFound)
         expect_no_keen_call(:country_lookup_success)
         expect_bank_status_check_keen_call(country_code: nil, error: :no_country)
 
         # Make sure Rollbar was notified
-        expect_rollbar_call(Faraday::ClientError)
+        expect_rollbar_call(Faraday::ResourceNotFound)
       end
 
       ["invalid_xml", "no_result_set_element", "no_feature_member_element", "no_hostip_element", "no_country_code_element"].each do |type|
