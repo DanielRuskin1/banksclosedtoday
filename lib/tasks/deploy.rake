@@ -42,6 +42,6 @@ class DeployCommands
 
   # Push from Github to Heroku
   def self.run_deploy
-    `git push banksclosedtoday_heroku refs/remotes/Github/master:refs/heads/master`
+    `git push banksclosedtoday_heroku master`
   end
 end

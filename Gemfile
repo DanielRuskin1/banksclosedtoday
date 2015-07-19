@@ -4,7 +4,7 @@ ruby '2.1.6'
 # Rails
 gem 'rails', '3.2.21'
 
-# Puma webserver (faster than default WEBrick)
+# Thin webserver (faster than default WEBrick)
 gem 'thin', '1.6.3'
 
 # Exception monitoring
