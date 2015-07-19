@@ -25,7 +25,7 @@ describe 'deploy task' do
   end
 
   context "when tests fail" do
-    ["2392 examples, 111 failures", "35 examples, 10 failures", "20 examples, 1 failure"].each do |failure_result_string|
+    ["2392 examples, 111 failures", "35 examples, 10 failures", "20 examples, 1 failure", "WeirdSample"].each do |failure_result_string|
       it "should abort for #{failure_result_string}" do
         # Stub run_tests to return the relevant failure result string
         allow(DeployCommands).to receive(:run_tests).and_return(failure_result_string)
@@ -33,7 +33,7 @@ describe 'deploy task' do
         # Run task and make sure it raises a DeployError
         expect {
           run_rake_task
-        }.to raise_error(DeployError, "Tests failed!")
+        }.to raise_error(DeployError, "Tests did not pass!")
 
         # Make sure that
         # 1. DeployCommands.run_tests was called,
