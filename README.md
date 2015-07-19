@@ -1,10 +1,12 @@
-== Welcome!
+# Are Banks Closed Today?
+
+## Welcome!
 "Are Banks Closed Today?" is a Rails application for checking whether banks in a given country are open.  Check it out at http://are.banks.closed.today/.
 
-== Getting Started
+## Getting Started
 "Are Banks Closed Today?" is very simple to setup on Heroku.  Simply clone the repository, ensure that all dependencies are setup, then deploy to your Heroku application.
 
-== Dependencies
+## Dependencies
 In addition to the various dependencies specified in the Gemfile, some additional services are also used.  The table below shows all such services that are currently used by the app.
 
 | Service       | Purpose                    | Required by Default    | How To Setup                                                   |
