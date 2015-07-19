@@ -3,7 +3,7 @@ class BanksController < ApplicationController
   def index
     # If the user passed in a country_code, get a UserLocation based on the provided param
     # Otherwise, get one based on their IP address.
-    if params[:country_code].is_a?(String)
+    if params[:country_code]
       user_location = UserLocation.new(country_code: params[:country_code].upcase)
     else
       user_location = UserLocationService.location_for_request(request)

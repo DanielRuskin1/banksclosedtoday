@@ -28,7 +28,7 @@
           <% when :no_country %>
             Can you tell us?
           <% when :unsupported_country %>
-            Email <%= render("shared/creator_email", link_text: "us") %> and request support!
+            Email <%= render("shared/creator_email", link_text: "us") %> to request support!
           <% end %>
         <% else %>
           <% if @bank_closure_reason.present? %>

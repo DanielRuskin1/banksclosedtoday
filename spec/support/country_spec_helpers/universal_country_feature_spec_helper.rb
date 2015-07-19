@@ -9,6 +9,6 @@ def expect_unsupported_country_error
   expect(page).to_not have_content('Are US banks closed today?')
   expect(page).to_not have_content('The Federal Reserve Bank schedule is used to determine US bank statuses. Some banks may not adhere to this schedule.')
   expect(page).to have_content("Unfortunately, your country isn't supported at this time.")
-  expect(page).to have_content('Email us and request support!')
+  expect(page).to have_content('Email us to request support!')
   expect(page).to have_content('Try another country?')
 end
