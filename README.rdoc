@@ -8,8 +8,8 @@ Are Banks Closed Today? is a Rails application for checking whether banks in a g
 
 "Are Banks Closed Today?" is very simple to setup on Heroku.
 1. Fork the repository.
-2. Create an application on Heroku with the below dependencies setup.
-3. Deploy to your Heroku application.
+2. Create an application on Heroku with the below dependencies setup.  Add Heroku as a remote with the following name: "banksclosedtoday_heroku"
+3. Run `rake deploy` to deploy to Heroku.
 
 ## Dependencies
 
