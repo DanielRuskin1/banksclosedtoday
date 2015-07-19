@@ -26,7 +26,7 @@ describe KeenService do
       spy_on_rollbar
     end
 
-    describe 'logging' do
+    context 'logging' do
       after do
         # Make sure Rollbar was not notified during any tests
         expect_no_rollbar_notifications
