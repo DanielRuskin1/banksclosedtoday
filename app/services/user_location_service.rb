@@ -62,7 +62,7 @@ class UserLocationService
   end
 
   # Helper method to send a GEOIP lookup request with the given remote IP
-  REQUEST_TIMEOUT = 1.second # Timeout requests in 1 second
+  REQUEST_TIMEOUT = 2.seconds # Actual timeout ends up being twice this (read timeout + open timeout)
   def self.send_request_with_remote_ip(remote_ip)
     # Run request and get result
     request_result = faraday_connection.get do |req|
