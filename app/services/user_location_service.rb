@@ -125,7 +125,7 @@ class UserLocationService
 
     # If no raise occurred above, we weren't able to identify any known error cases.
     # Raise a default UnknownResponseError.
-    fail UnknownResponseError, response
+    raise_error_with_response(UnknownResponseError, response)
   rescue JSON::ParserError
     # The response data was not valid JSON
     raise_error_with_response(UnknownResponseFormatError, response)
