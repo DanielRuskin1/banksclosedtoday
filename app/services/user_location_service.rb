@@ -1,22 +1,32 @@
 # UserLocationService is used to perform GEOIP lookups on users.  This allows us to serve country-specific messaging.
 class UserLocationService
   # Service to use for GEOIP lookups
-  GEOIP_SERVICE_URL = 'http://api.hostip.info'
+  GEOIP_SERVICE_URL = 'https://geoip.maxmind.com/geoip/v2.1/city'
 
-  # Country code that, if received by the HostIP.info service, indicates a malformed request
-  HOSTIP_INVALID_COUNTRY_CODE = 'XX'
+  # GEOIP credentials
+  GEOIP_USERNAME = ENV.fetch('GEOIP_USERNAME')
+  GEOIP_PASSWORD = ENV.fetch('GEOIP_PASSWORD')
 
-  # Base exception class for UserCountryService errors
+  # UserCountryService exception classes
   class UserLocationServiceError < StandardError; end
-  class UnknownResponseFormat < UserLocationServiceError; end # Exception for GEOIP response data that is in an unknown format
-  class ReceivedBadCountryError < UserLocationServiceError; end # Exception for when HOSTIP_INVALID_COUNTRY_CODE is returned by the GEOIP service
+  class UnknownResponseFormatError < UserLocationServiceError; end # GEOIP response data is in an unknown format
+  class UnknownResponseError < UserLocationServiceError; end # An unknown error was sent back by the GEOIP service
+  class UnknownIpError < UserLocationServiceError; end # The GEOIP service cannot lookup the provided IP address
+
+  ###
+  # Error codes specified in this list represent an IP address that the GEOIP service cannot lookup.
+  # These will generate a UnknownIpError.
+  UNSUPPORTED_IP_ADDRESS_ERROR_CODES = [
+    'IP_ADDRESS_RESERVED', # Reserved/private IP range
+    'IP_ADDRESS_NOT_FOUND', # No country data available for IP
+  ]
 
   ###
   # Exceptions on this list can be considered expected.
   # All exceptions in the location_for_request method are rescued -
   # but exceptions listed here will not trigger a Rollbar notification.
   EXPECTED_EXCEPTIONS = [
-    ReceivedBadCountryError # Bad country returned by GEOIP service,
+    UnknownIpError # No country code was found by the GEOIP service
   ]
 
   ###
@@ -53,62 +63,79 @@ class UserLocationService
   # Helper method to send a GEOIP lookup request with the given remote IP
   REQUEST_TIMEOUT = 2.seconds # Actual timeout ends up being twice this (read timeout + open timeout)
   def self.send_request_with_remote_ip(remote_ip)
-    # Run request and get result
-    request_result = faraday_connection.get do |req|
-      req.url '/' # Base path
-      req.params[:ip] = remote_ip # IP to search for
+    # Run request and get response
+    response = faraday_connection.get do |req|
+      req.url "#{remote_ip}" # Base path + IP address
+      req.headers['Accept'] = 'application/json' # JSON format
       req.options.timeout = REQUEST_TIMEOUT # Read timeout
       req.options.open_timeout = REQUEST_TIMEOUT # Open timeout
-    end.body
+    end
 
-    # Get country_code
-    country_code = get_country_code_from_xml(request_result)
-
-    # If the request was successful, return the result.
-    # Otherwise, raise an exception.
-    if country_code == HOSTIP_INVALID_COUNTRY_CODE
-      fail ReceivedBadCountryError, country_code
+    # If the response returned a 200, get the country_code.
+    # Otherwise, handle the error.
+    if response.status == 200
+      get_country_code_from_response(response)
     else
-      country_code
+      handle_response_error(response)
     end
   end
 
   # Helper method that returns a Faraday connection to the GEOIP service
   def self.faraday_connection
     @conn ||= Faraday.new(url: GEOIP_SERVICE_URL) do |conn|
-      conn.use Faraday::Response::RaiseError # Raise an exception for 40x/50x responses
+      conn.basic_auth GEOIP_USERNAME, GEOIP_PASSWORD # Request authentication
       conn.use Faraday::Adapter::NetHttp
     end
   end
 
   ###
-  # Helper method to take in HostIP XML data, then return the included country_code.
-  # If no country_code can be found, a UnknownDataFormat error will be raised.
-  def self.get_country_code_from_xml(xml_data)
-    # Parse XML into Hash
-    parsed_xml = Hash.from_xml(xml_data)
+  # Helper method to take in a successful Faraday response, then return the included country_code.
+  # If no country_code can be found, a UnknownResponseFormatError will be raised.
+  def self.get_country_code_from_response(response)
+    # Parse JSON into Hash
+    parsed_json = JSON.parse!(response.body)
 
-    # Get result set element
-    result_set = parsed_xml['HostipLookupResultSet']
-    fail UnknownResponseFormat, xml_data unless result_set
+    # Get country element; fail if not present
+    country_element = parsed_json['country']
+    raise_error_with_response(UnknownResponseFormatError, response) unless country_element
 
-    # Get feature member element
-    feature_member = result_set.try(:[], 'featureMember')
-    fail UnknownResponseFormat, xml_data unless feature_member
+    # Get iso_code; fail if not present
+    country_code = country_element['iso_code']
+    raise_error_with_response(UnknownResponseFormatError, response) unless country_code
 
-    # Get host IP result element
-    host_ip_result_element = feature_member.try(:[], 'Hostip')
-    fail UnknownResponseFormat, xml_data unless host_ip_result_element
-
-    # Get country abbreviation
-    country_code = host_ip_result_element.try(:[], 'countryAbbrev')
-    fail UnknownResponseFormat, xml_data unless country_code
-
-    # Return obtained result
+    # Return obtained country_code
     country_code
-  rescue REXML::ParseException
-    # The response data was not in XML
-    raise UnknownResponseFormat, xml_data
+  rescue JSON::ParserError
+    # The response data was not valid JSON
+    raise_error_with_response(UnknownResponseFormatError, response)
+  end
+
+  ###
+  # Helper method to take in a failed Faraday response, then figure out what went wrong.
+  # UserLocationService errors will be raised.
+  def self.handle_response_error(response)
+    if [400, 404].include?(response.status)
+      # Try parsing the JSON
+      parsed_json = JSON.parse!(response.body)
+
+      # If the code represents an unsupported IP,
+      # raise a UnknownIpError.
+      raise_error_with_response(UnknownIpError, response) if UNSUPPORTED_IP_ADDRESS_ERROR_CODES.include?(parsed_json['code'])
+    end
+
+    # If no raise occurred above, we weren't able to identify any known error cases.
+    # Raise a default UnknownResponseError.
+    fail UnknownResponseError, response
+  rescue JSON::ParserError
+    # The response data was not valid JSON
+    raise_error_with_response(UnknownResponseFormatError, response)
+  end
+
+  ###
+  # Helper method to raise the provided error class,
+  # with the provided Faraday response as the message.
+  def self.raise_error_with_response(error_class, response)
+    fail error_class, "#{response.status}: #{response.body}"
   end
 
   # Wrapper for UserLocationService responses.
