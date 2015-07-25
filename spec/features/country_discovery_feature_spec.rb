@@ -102,8 +102,30 @@ describe 'country discovery', type: :feature do
         expect_rollbar_call(Faraday::ResourceNotFound)
       end
 
+      it 'should handle slow GEOIP requests correctly' do
+        # Stub a slow GEOIP rqeuest
+        stub_slow_geoip_lookup
+
+        # Go to page without country param
+        visit root_path
+
+        # Make sure GEOIP was attempted once
+        expect_one_geoip_request
+
+        # Make sure correct messaging is shown
+        expect_no_country_error
+
+        # Make sure Keen was called correctly
+        expect_country_lookup_failed_keen_call(Faraday::TimeoutError)
+        expect_no_keen_call(:country_lookup_success)
+        expect_bank_status_check_keen_call(nil, error: :no_country)
+
+        # Make sure Rollbar was notified
+        expect_rollbar_call(Faraday::TimeoutError)
+      end
+
       %w(invalid_xml no_result_set_element no_feature_member_element no_hostip_element no_country_code_element).each do |type|
-        it 'should handle foo format responses correctly' do
+        it "should handle #{type} format responses correctly" do
           # Stub a GEOIP rqeuest with the relevant type;
           # store the stubbed response body in a variable.
           response_body = stub_invalid_format_geoip_lookup(type)
@@ -125,28 +147,6 @@ describe 'country discovery', type: :feature do
           # Make sure Rollbar was notified
           expect_rollbar_call(UserLocationService::UnknownResponseFormat)
         end
-      end
-
-      it 'should handle slow GEOIP requests correctly' do
-        # Stub a slow GEOIP rqeuest
-        stub_slow_geoip_lookup
-
-        # Go to page without country param
-        visit root_path
-
-        # Make sure GEOIP was attempted once
-        expect_one_geoip_request
-
-        # Make sure correct messaging is shown
-        expect_no_country_error
-
-        # Make sure Keen was called correctly
-        expect_country_lookup_failed_keen_call(Faraday::TimeoutError)
-        expect_no_keen_call(:country_lookup_success)
-        expect_bank_status_check_keen_call(nil, error: :no_country)
-
-        # Make sure Rollbar was notified
-        expect_rollbar_call(Faraday::TimeoutError)
       end
     end
 

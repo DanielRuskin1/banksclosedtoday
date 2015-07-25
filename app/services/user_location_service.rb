@@ -12,23 +12,11 @@ class UserLocationService
   class ReceivedBadCountryError < UserLocationServiceError; end # Exception for when HOSTIP_INVALID_COUNTRY_CODE is returned by the GEOIP service
 
   ###
-  # Expected errors to rescue in the country method
-  # If any of these error types occur, the following actions will be taken:
-  # 1. Keen will be notified for tracking purposes
-  # 2. The error will be "hidden" - a blank UserLocation will be returned
-  # Other error types will not be rescued.
-  EXCEPTIONS_TO_RESCUE = [
+  # Exceptions on this list can be considered expected.
+  # All exceptions in the location_for_request method are rescued -
+  # but exceptions listed here will not trigger a Rollbar notification.
+  EXPECTED_EXCEPTIONS = [
     ReceivedBadCountryError # Bad country returned by GEOIP service,
-  ]
-
-  ###
-  # Errors that are expected to occur, but that should still result in a Rollbar notifications.
-  # These exceptions will still be rescued, and the error will be "hidden" to the caller (with a blank UserLocation).
-  EXCEPTIONS_TO_RESCUE_AND_NOTIFY = [
-    Faraday::TimeoutError, # Request timed out
-    Faraday::ConnectionFailed, # Connection failed (e.g. due to the server being down)
-    Faraday::ClientError, # Request failed (e.g. due to 500 error)
-    UnknownResponseFormat # GEOIP response data is in an unknown format
   ]
 
   ###
@@ -46,14 +34,15 @@ class UserLocationService
 
     # Return a UserLocation object with the country_code
     UserLocationServiceResponse.new(success: true, country_code: country_code)
-  rescue *(EXCEPTIONS_TO_RESCUE + EXCEPTIONS_TO_RESCUE_AND_NOTIFY) => exception
+  rescue => exception
     # Track with Keen
     KeenService.track_action(:country_lookup_failed,
                              request: request,
                              tracking_params: { country_code: country_code, error: exception.class.to_s })
 
-    # Notify Rollbar if necessary
-    if EXCEPTIONS_TO_RESCUE_AND_NOTIFY.any? { |type| exception.is_a?(type) }
+    # Notify Rollbar if the error type is not included in
+    # EXPECTED_EXCEPTIONS
+    unless EXPECTED_EXCEPTIONS.any? { |type| exception.is_a?(type) }
       Rollbar.error(exception)
     end
 
