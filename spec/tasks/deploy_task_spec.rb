@@ -177,17 +177,46 @@ describe 'deploy task' do
               allow(DeployCommands).to receive(:input).and_return('DEPLOY')
             end
 
-            it 'should deploy' do
-              # Run task
-              run_rake_task
+            context 'when the deploy fails' do
+              ['https://banksclosedtoday.herokuapp.com/ deployed to Heroku Push rejected', 'Push rejected!'].each do |failure_string|
+                it "should abort for #{failure_string}" do
+                  # Stub DeployCommands#deploy to return the failure string
+                  allow(DeployCommands).to receive(:run_deploy).and_return(failure_string)
 
-              # Make sure that the task got to the correct point
-              expect(DeployCommands).to have_received(:current_path)
-              expect(DeployCommands).to have_received(:run_rubocop)
-              expect(DeployCommands).to have_received(:run_tests)
-              expect(DeployCommands).to have_received(:git_status)
-              expect(DeployCommands).to have_received(:input)
-              expect(DeployCommands).to have_received(:run_deploy)
+                  # Run task and make sure it raises a DeployError
+                  expect do
+                    run_rake_task
+                  end.to raise_error(DeployError, 'Deploy failed!'.red)
+
+                  # Make sure that the task got to the correct point
+                  expect(DeployCommands).to have_received(:current_path)
+                  expect(DeployCommands).to have_received(:run_rubocop)
+                  expect(DeployCommands).to have_received(:run_tests)
+                  expect(DeployCommands).to have_received(:git_status)
+                  expect(DeployCommands).to have_received(:input)
+                  expect(DeployCommands).to have_received(:run_deploy)
+                end
+              end
+            end
+
+            context 'when the deploy succeeds' do
+              before do
+                # Stub DeployCommands#run_deploy to return the deploy success string
+                allow(DeployCommands).to receive(:run_deploy).and_return('https://banksclosedtoday.herokuapp.com/ deployed to Heroku')
+              end
+
+              it 'should not raise an error' do
+                # Run task
+                run_rake_task
+
+                # Make sure that the task got to the correct point
+                expect(DeployCommands).to have_received(:current_path)
+                expect(DeployCommands).to have_received(:run_rubocop)
+                expect(DeployCommands).to have_received(:run_tests)
+                expect(DeployCommands).to have_received(:git_status)
+                expect(DeployCommands).to have_received(:input)
+                expect(DeployCommands).to have_received(:run_deploy)
+              end
             end
           end
         end

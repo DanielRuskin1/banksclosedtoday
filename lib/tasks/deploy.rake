@@ -9,8 +9,10 @@ TESTS_PASSED_REGEX = /, 0 failures/
 RUBOCOP_FAILED_REGEX = /, [^no].* offense/
 RUBOCOP_PASSED_REGEX = /, no offenses detected/
 
-# General deploy constants
+# Deploy constants
 ACCEPT_DEPLOY_TEXT = 'DEPLOY'
+DEPLOY_FAILED_REGEX = /Push rejected/
+DEPLOY_PASSED_REGEX = %r{https://banksclosedtoday.herokuapp.com/ deployed to Heroku}
 
 # Error class for exceptions that can occur during a deploy attempt
 class DeployError < StandardError; end
@@ -30,6 +32,9 @@ task :deploy do
 
   # Prompt user to accept deploy
   prompt_user_to_complete_deploy
+
+  # Complete the deploy
+  complete_deploy
 end
 
 ###
@@ -42,6 +47,7 @@ def check_current_path
 
   # Fail if path is incorrect
   if DeployCommands.current_path != CORRECT_DEPLOY_PATH
+    # Abort
     fail DeployError, "You must be in the following path to deploy: #{CORRECT_DEPLOY_PATH}.".red
   else
     # Log
@@ -63,6 +69,7 @@ def check_rubocop
 
   # Fail deploy if the fail regex matches, or the pass regex does not match
   if rubocop_result.match(RUBOCOP_FAILED_REGEX) || !rubocop_result.match(RUBOCOP_PASSED_REGEX)
+    # Abort
     fail DeployError, 'Rubocop failed!'.red
   else
     # Log
@@ -84,6 +91,7 @@ def run_and_verify_tests
 
   # Fail deploy if the fail regex matches, or the pass regex does not match
   if test_result.match(TESTS_FAILED_REGEX) || !test_result.match(TESTS_PASSED_REGEX)
+    # Abort
     fail DeployError, 'Tests did not pass!'.red
   else
     # Log
@@ -97,10 +105,11 @@ end
 # 2. Raising an exception if so.
 def check_for_uncommitted_changes
   # Log
-  DeployCommands.output('Checking uncommitted changes...'.yellow)
+  DeployCommands.output('Checking for uncommitted changes...'.yellow)
 
   # git_status will return a list of any modified/uncommitted files.
   if DeployCommands.git_status.present?
+    # Abort
     fail DeployError, 'Please commit changes before deploying.'.red
   else
     # Log
@@ -110,19 +119,37 @@ end
 
 ###
 # Helper method for:
-# 1. Prompting the user to complete the deploy, and
-#      a. Completing the deploy if the user accepts, or
-#      b. Raising an exception if the user declines.
+# 1. Prompting the user to complete the deploy,
+# 2. Raising an exception if they do not accept with the correct string.
 def prompt_user_to_complete_deploy
   # Prompt user to accept deploy
   DeployCommands.output("Please review any output above, then type #{ACCEPT_DEPLOY_TEXT} to start the deploy.")
 
   # If the user accepts the deploy, deploy.
   # Otherwise, abort.
-  if DeployCommands.input == ACCEPT_DEPLOY_TEXT
-    DeployCommands.run_deploy
-  else
+  if DeployCommands.input != ACCEPT_DEPLOY_TEXT
+    # Abort
     fail DeployError, 'User declined deploy!'.red
+  else
+    # Log
+    DeployCommands.output('User accepted deploy!')
+  end
+end
+
+def complete_deploy
+  # Log
+  DeployCommands.output('Completing deploy...')
+
+  # Deploy and output result
+  deploy_result = DeployCommands.run_deploy
+  DeployCommands.output(deploy_result)
+
+  # Check if deploy was successful, then fail/output as necessary
+  if deploy_result.match(DEPLOY_FAILED_REGEX) || !deploy_result.match(DEPLOY_PASSED_REGEX)
+    fail DeployError, 'Deploy failed!'.red
+  else
+    # Log
+    DeployCommands.output('Tests passed!'.green)
   end
 end
 
