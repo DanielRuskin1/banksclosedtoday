@@ -37,8 +37,16 @@ end
 # 1. Checking the current path, and
 # 2. Raising an exception if it is not correct
 def check_current_path
+  # Log
+  DeployCommands.output('Checking path...')
+
   # Fail if path is incorrect
-  fail DeployError, "You must be in the following path to deploy: #{CORRECT_DEPLOY_PATH}." if DeployCommands.current_path != CORRECT_DEPLOY_PATH
+  if DeployCommands.current_path != CORRECT_DEPLOY_PATH
+    fail DeployError, "You must be in the following path to deploy: #{CORRECT_DEPLOY_PATH}."
+  else
+    # Log
+    DeployCommands.output('Path OK!')
+  end
 end
 
 ###
@@ -46,11 +54,20 @@ end
 # 1. Running rubocop on the repo,
 # 2. Raising an exception if any offenses are detected
 def check_rubocop
-  # Run rubocop
+  # Log
+  DeployCommands.output('Running rubocop...')
+
+  # Run rubocop and output result
   rubocop_result = DeployCommands.run_rubocop
+  DeployCommands.output(rubocop_result)
 
   # Fail deploy if the fail regex matches, or the pass regex does not match
-  fail DeployError, 'Rubocop failed!' if rubocop_result.match(RUBOCOP_FAILED_REGEX) || !rubocop_result.match(RUBOCOP_PASSED_REGEX)
+  if rubocop_result.match(RUBOCOP_FAILED_REGEX) || !rubocop_result.match(RUBOCOP_PASSED_REGEX)
+    fail DeployError, 'Rubocop failed!'
+  else
+    # Log
+    DeployCommands.output('Rubocop passed!')
+  end
 end
 
 ###
@@ -58,12 +75,20 @@ end
 # 1. Running tests and outputting the results, and
 # 2. Raising an exception if any tests failed.
 def run_and_verify_tests
+  # Log
+  DeployCommands.output('Running tests...')
+
   # Run tests and output result
   test_result = DeployCommands.run_tests
   DeployCommands.output(test_result)
 
   # Fail deploy if the fail regex matches, or the pass regex does not match
-  fail DeployError, 'Tests did not pass!' if test_result.match(TESTS_FAILED_REGEX) || !test_result.match(TESTS_PASSED_REGEX)
+  if test_result.match(TESTS_FAILED_REGEX) || !test_result.match(TESTS_PASSED_REGEX)
+    fail DeployError, 'Tests did not pass!'
+  else
+    # Log
+    DeployCommands.output('Tests passed!')
+  end
 end
 
 ###
@@ -71,8 +96,16 @@ end
 # 1. Checking whether any uncommitted changes are present in git, and
 # 2. Raising an exception if so.
 def check_for_uncommitted_changes
+  # Log
+  DeployCommands.output('Checking uncommitted changes...')
+
   # git_status will return a list of any modified/uncommitted files.
-  fail DeployError, 'Please commit changes before deploying.' if DeployCommands.git_status.present?
+  if DeployCommands.git_status.present?
+    fail DeployError, 'Please commit changes before deploying.'
+  else
+    # Log
+    DeployCommands.output('No uncommitted changes!')
+  end
 end
 
 ###

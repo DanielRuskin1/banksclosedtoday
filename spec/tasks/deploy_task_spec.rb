@@ -19,6 +19,12 @@ describe 'deploy task' do
       fail 'New DeployCommands methods found!  Please consider adding to DEPLOY_COMMANDS_METHODS_TO_STUB, or removing this check.'
     end
 
+    # Make sure that no instance_methods are present
+    # False serves the same purpose here (hiding any inherited methods)
+    if DeployCommands.instance_methods(false).any?
+      fail 'Instance methods are present on DeployCommands!  Please remove them, or add code to stub them.'
+    end
+
     # Stub methods defined in array
     DEPLOY_COMMANDS_METHODS_TO_STUB.each do |method_name|
       allow(DeployCommands).to receive(method_name)
