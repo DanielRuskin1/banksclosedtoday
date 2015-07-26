@@ -22,11 +22,11 @@ task :deploy do
   # Check rubocop
   check_rubocop
 
-  # Check for uncommited changes
-  check_for_uncommited_changes
-
   # Run/verify tests
   run_and_verify_tests
+
+  # Check for uncommitted changes
+  check_for_uncommitted_changes
 
   # Prompt user to accept deploy
   prompt_user_to_complete_deploy
@@ -55,15 +55,6 @@ end
 
 ###
 # Helper method for:
-# 1. Checking whether any uncommited changes are present in git, and
-# 2. Raising an exception if so.
-def check_for_uncommited_changes
-  # git_status will return a list of any modified/uncommited files.
-  fail DeployError, 'Please commit changes before deploying.' if DeployCommands.git_status.present?
-end
-
-###
-# Helper method for:
 # 1. Running tests and outputting the results, and
 # 2. Raising an exception if any tests failed.
 def run_and_verify_tests
@@ -73,6 +64,15 @@ def run_and_verify_tests
 
   # Fail deploy if the fail regex matches, or the pass regex does not match
   fail DeployError, 'Tests did not pass!' if test_result.match(TESTS_FAILED_REGEX) || !test_result.match(TESTS_PASSED_REGEX)
+end
+
+###
+# Helper method for:
+# 1. Checking whether any uncommitted changes are present in git, and
+# 2. Raising an exception if so.
+def check_for_uncommitted_changes
+  # git_status will return a list of any modified/uncommitted files.
+  fail DeployError, 'Please commit changes before deploying.' if DeployCommands.git_status.present?
 end
 
 ###

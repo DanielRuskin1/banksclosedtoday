@@ -19,7 +19,7 @@ describe 'deploy task' do
       fail 'New DeployCommands methods found!  Please consider adding to DEPLOY_COMMANDS_METHODS_TO_STUB, or removing this check.'
     end
 
-    # Stub all methods
+    # Stub methods defined in array
     DEPLOY_COMMANDS_METHODS_TO_STUB.each do |method_name|
       allow(DeployCommands).to receive(method_name)
     end
@@ -33,7 +33,7 @@ describe 'deploy task' do
 
   context 'when the current path is not correct' do
     before do
-      # Stub current_path to return an incorrect path
+      # Stub DeployCommands#current_path to return an incorrect path
       allow(DeployCommands).to receive(:current_path).and_return('/Users/danielruskin/code/otherrepo')
     end
 
@@ -46,8 +46,8 @@ describe 'deploy task' do
       # Make sure that the task got to the correct point
       expect(DeployCommands).to have_received(:current_path)
       expect(DeployCommands).to_not have_received(:run_rubocop)
-      expect(DeployCommands).to_not have_received(:git_status)
       expect(DeployCommands).to_not have_received(:run_tests)
+      expect(DeployCommands).to_not have_received(:git_status)
       expect(DeployCommands).to_not have_received(:input)
       expect(DeployCommands).to_not have_received(:run_deploy)
     end
@@ -55,7 +55,7 @@ describe 'deploy task' do
 
   context 'when the current path is correct' do
     before do
-      # Stub current_path to return the correct path
+      # Stub DeployCommands#current_path to return the correct path
       allow(DeployCommands).to receive(:current_path).and_return('/Users/danielruskin/code/banksclosedtoday')
     end
 
@@ -73,8 +73,8 @@ describe 'deploy task' do
           # Make sure that the task got to the correct point
           expect(DeployCommands).to have_received(:current_path)
           expect(DeployCommands).to have_received(:run_rubocop)
-          expect(DeployCommands).to_not have_received(:git_status)
           expect(DeployCommands).to_not have_received(:run_tests)
+          expect(DeployCommands).to_not have_received(:git_status)
           expect(DeployCommands).to_not have_received(:input)
           expect(DeployCommands).to_not have_received(:run_deploy)
         end
@@ -83,64 +83,64 @@ describe 'deploy task' do
 
     context 'when rubocop passes' do
       before do
-        # Stub run_rubocop to return a passed result
+        # Stub DeployCommands#run_rubocop to return a passed result
         allow(DeployCommands).to receive(:run_rubocop).and_return('16 files inspected, no offenses detected')
       end
 
-      context 'when uncommited changes are present' do
-        before do
-          # Stub git_status to return uncommited changes
-          allow(DeployCommands).to receive(:git_status).and_return('M lib/tasks/deploy.rake')
-        end
+      context 'when tests fail' do
+        ['2392 examples, 111 failures', '35 examples, 10 failures', '20 examples, 1 failure', 'WeirdSample'].each do |failure_result_string|
+          it "should abort for #{failure_result_string}" do
+            # Stub DeployCommands#run_tests to return the relevant failure result string
+            allow(DeployCommands).to receive(:run_tests).and_return(failure_result_string)
 
-        it 'should fail the deploy' do
-          # Run task and make sure it raises a DeployError
-          expect do
-            run_rake_task
-          end.to raise_error(DeployError, 'Please commit changes before deploying.')
+            # Run task and make sure it raises a DeployError
+            expect do
+              run_rake_task
+            end.to raise_error(DeployError, 'Tests did not pass!')
 
-          # Make sure that the task got to the correct point
-          expect(DeployCommands).to have_received(:current_path)
-          expect(DeployCommands).to have_received(:run_rubocop)
-          expect(DeployCommands).to have_received(:git_status)
-          expect(DeployCommands).to_not have_received(:run_tests)
-          expect(DeployCommands).to_not have_received(:input)
-          expect(DeployCommands).to_not have_received(:run_deploy)
+            # Make sure that the task got to the correct point
+            expect(DeployCommands).to have_received(:current_path)
+            expect(DeployCommands).to have_received(:run_rubocop)
+            expect(DeployCommands).to have_received(:run_tests)
+            expect(DeployCommands).to_not have_received(:git_status)
+            expect(DeployCommands).to_not have_received(:input)
+            expect(DeployCommands).to_not have_received(:run_deploy)
+          end
         end
       end
 
-      context 'when no uncommited changes are present' do
+      context 'when tests pass' do
         before do
-          # Stub git_status to return no uncommited changes
-          allow(DeployCommands).to receive(:git_status).and_return('')
+          # Stub DeployCommands#run_tests to return a success
+          allow(DeployCommands).to receive(:run_tests).and_return('35 examples, 0 failures')
         end
 
-        context 'when tests fail' do
-          ['2392 examples, 111 failures', '35 examples, 10 failures', '20 examples, 1 failure', 'WeirdSample'].each do |failure_result_string|
-            it "should abort for #{failure_result_string}" do
-              # Stub run_tests to return the relevant failure result string
-              allow(DeployCommands).to receive(:run_tests).and_return(failure_result_string)
+        context 'when uncommitted changes are present' do
+          before do
+            # Stub DeployCommands#git_status to return uncommitted changes
+            allow(DeployCommands).to receive(:git_status).and_return('M lib/tasks/deploy.rake')
+          end
 
-              # Run task and make sure it raises a DeployError
-              expect do
-                run_rake_task
-              end.to raise_error(DeployError, 'Tests did not pass!')
+          it 'should fail the deploy' do
+            # Run task and make sure it raises a DeployError
+            expect do
+              run_rake_task
+            end.to raise_error(DeployError, 'Please commit changes before deploying.')
 
-              # Make sure that the task got to the correct point
-              expect(DeployCommands).to have_received(:current_path)
-              expect(DeployCommands).to have_received(:run_rubocop)
-              expect(DeployCommands).to have_received(:git_status)
-              expect(DeployCommands).to have_received(:run_tests)
-              expect(DeployCommands).to_not have_received(:input)
-              expect(DeployCommands).to_not have_received(:run_deploy)
-            end
+            # Make sure that the task got to the correct point
+            expect(DeployCommands).to have_received(:current_path)
+            expect(DeployCommands).to have_received(:run_rubocop)
+            expect(DeployCommands).to have_received(:run_tests)
+            expect(DeployCommands).to have_received(:git_status)
+            expect(DeployCommands).to_not have_received(:input)
+            expect(DeployCommands).to_not have_received(:run_deploy)
           end
         end
 
-        context 'when tests pass' do
+        context 'when no uncommitted changes are present' do
           before do
-            # Stub run_tests to return a success
-            allow(DeployCommands).to receive(:run_tests).and_return('35 examples, 0 failures')
+            # Stub DeployCommands#git_status to return no uncommitted changes
+            allow(DeployCommands).to receive(:git_status).and_return('')
           end
 
           context 'when the user declines the deploy' do
@@ -157,8 +157,8 @@ describe 'deploy task' do
                 # Make sure that the task got to the correct point
                 expect(DeployCommands).to have_received(:current_path)
                 expect(DeployCommands).to have_received(:run_rubocop)
-                expect(DeployCommands).to have_received(:git_status)
                 expect(DeployCommands).to have_received(:run_tests)
+                expect(DeployCommands).to have_received(:git_status)
                 expect(DeployCommands).to have_received(:input)
                 expect(DeployCommands).to_not have_received(:run_deploy)
               end
@@ -178,8 +178,8 @@ describe 'deploy task' do
               # Make sure that the task got to the correct point
               expect(DeployCommands).to have_received(:current_path)
               expect(DeployCommands).to have_received(:run_rubocop)
-              expect(DeployCommands).to have_received(:git_status)
               expect(DeployCommands).to have_received(:run_tests)
+              expect(DeployCommands).to have_received(:git_status)
               expect(DeployCommands).to have_received(:input)
               expect(DeployCommands).to have_received(:run_deploy)
             end
