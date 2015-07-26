@@ -4,7 +4,7 @@ def stub_geoip_lookup(country_code)
   response_body = File.read(file_name) % country_code
 
   # Stub request with body
-  stub_request(:get, /https:\/\/GEOIP_USERNAME:GEOIP_PASSWORD@geoip.maxmind.com\/geoip\/v2.1\/city/)
+  stub_request(:get, %r{https:\/\/GEOIP_USERNAME:GEOIP_PASSWORD@geoip.maxmind.com\/geoip\/v2.1\/city})
     .to_return(status: 200, body: response_body, headers: {})
 
   # Return expected body
@@ -12,21 +12,21 @@ def stub_geoip_lookup(country_code)
 end
 
 def stub_server_error_geoip_lookup
-  stub_request(:get, /https:\/\/GEOIP_USERNAME:GEOIP_PASSWORD@geoip.maxmind.com\/geoip\/v2.1\/city/)
+  stub_request(:get, %r{https:\/\/GEOIP_USERNAME:GEOIP_PASSWORD@geoip.maxmind.com\/geoip\/v2.1\/city})
     .to_return(status: 500, body: 'Weird Error Message', headers: {})
 end
 
 def stub_request_failed_geoip_lookup(type)
   # Figure out what response code to use
   response_code = case type
-                  when "ip_reserved", "unknown_lookup_error", "invalid_lookup_error_json"
+                  when 'ip_reserved', 'unknown_lookup_error', 'invalid_lookup_error_json'
                     400
-                  when "ip_not_found"
+                  when 'ip_not_found'
                     404
-                  when "invalid_json", "no_country_element", "no_iso_code"
+                  when 'invalid_json', 'no_country_element', 'no_iso_code'
                     200
                   else
-                    raise "Unknown type #{type}!"
+                    fail "Unknown type #{type}!"
                   end
 
   # Get the response_body to use
@@ -34,7 +34,7 @@ def stub_request_failed_geoip_lookup(type)
   response_body = File.read(file_name)
 
   # Stub request
-  stub_request(:get, /https:\/\/GEOIP_USERNAME:GEOIP_PASSWORD@geoip.maxmind.com\/geoip\/v2.1\/city/)
+  stub_request(:get, %r{https:\/\/GEOIP_USERNAME:GEOIP_PASSWORD@geoip.maxmind.com\/geoip\/v2.1\/city/})
     .to_return(status: response_code, body: response_body, headers: {})
 
   # Return expected body
@@ -42,7 +42,7 @@ def stub_request_failed_geoip_lookup(type)
 end
 
 def stub_slow_geoip_lookup
-  stub_request(:get, /https:\/\/GEOIP_USERNAME:GEOIP_PASSWORD@geoip.maxmind.com\/geoip\/v2.1\/city/).to_timeout
+  stub_request(:get, %r{https:\/\/GEOIP_USERNAME:GEOIP_PASSWORD@geoip.maxmind.com\/geoip\/v2.1\/city/}).to_timeout
 end
 
 def expect_country_lookup_success_keen_call(country_code: 'US')

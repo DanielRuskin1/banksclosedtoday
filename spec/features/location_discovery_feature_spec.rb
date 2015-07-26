@@ -80,11 +80,11 @@ describe 'country discovery', type: :feature do
     end
 
     context 'GEOIP failure handling' do
-      ["invalid_json", "invalid_lookup_error_json", "no_country_element", "no_iso_code"].each do |type|
+      %w(invalid_json invalid_lookup_error_json no_country_element no_iso_code).each do |type|
         it "should handle #{type} responses correctly" do
           # Stub a GEOIP rqeuest with the relevant type;
           # store the stubbed response body in a variable.
-          response_body = stub_request_failed_geoip_lookup(type)
+          stub_request_failed_geoip_lookup(type)
 
           # Go to page without country param
           visit root_path
@@ -105,9 +105,9 @@ describe 'country discovery', type: :feature do
         end
       end
 
-      it "should handle unknown lookup failures correctly" do
+      it 'should handle unknown lookup failures correctly' do
         # Stub a GEOIP rqeuest with an unknown_lookup_error
-        response_body = stub_request_failed_geoip_lookup("unknown_lookup_error")
+        stub_request_failed_geoip_lookup('unknown_lookup_error')
 
         # Go to page without country param
         visit root_path
@@ -171,11 +171,11 @@ describe 'country discovery', type: :feature do
         expect_rollbar_call(Faraday::TimeoutError)
       end
 
-      ["ip_reserved", "ip_not_found"].each do |type|
+      %w(ip_reserved ip_not_found).each do |type|
         it "should handle reserved #{type} errors correctly" do
           # Stub a GEOIP rqeuest with the relevant type;
           # store the stubbed response body in a variable.
-          response_body = stub_request_failed_geoip_lookup(type)
+          stub_request_failed_geoip_lookup(type)
 
           # Go to page without country param
           visit root_path
@@ -282,7 +282,7 @@ describe 'country discovery', type: :feature do
     context 'when a country is not found' do
       before do
         # Stub with ip_not_found errors
-        stub_request_failed_geoip_lookup("ip_not_found")
+        stub_request_failed_geoip_lookup('ip_not_found')
       end
 
       after do

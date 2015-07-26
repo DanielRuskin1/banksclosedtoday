@@ -1,11 +1,27 @@
+# Correct path for deploys to take place in
+CORRECT_DEPLOY_PATH = '/Users/danielruskin/code/banksclosedtoday'
+
+# Test regex constants
 TESTS_FAILED_REGEX = /, [^0].* failure/ # If this matches, the task will assume that tests failed
-TESTS_PASSED_REGEX = /0 failures/
-ACCEPT_DEPLOY_TEXT = 'DEPLOY' # Text user has to enter to accept the deploy
+TESTS_PASSED_REGEX = /, 0 failures/
+
+# Rubocop regex constants
+RUBOCOP_FAILED_REGEX = /, [^no].* offense/
+RUBOCOP_PASSED_REGEX = /, no offenses detected/
+
+# General deploy constants
+ACCEPT_DEPLOY_TEXT = 'DEPLOY'
 
 # Error class for exceptions that can occur during a deploy attempt
 class DeployError < StandardError; end
 
 task :deploy do
+  # Check current path
+  check_current_path
+
+  # Check rubocop
+  check_rubocop
+
   # Check for uncommited changes
   check_for_uncommited_changes
 
@@ -14,6 +30,27 @@ task :deploy do
 
   # Prompt user to accept deploy
   prompt_user_to_complete_deploy
+end
+
+###
+# Helper method for:
+# 1. Checking the current path, and
+# 2. Raising an exception if it is not correct
+def check_current_path
+  # Fail if path is incorrect
+  fail DeployError, "You must be in the following path to deploy: #{CORRECT_DEPLOY_PATH}." if DeployCommands.current_path != CORRECT_DEPLOY_PATH
+end
+
+###
+# Helper method for:
+# 1. Running rubocop on the repo,
+# 2. Raising an exception if any offenses are detected
+def check_rubocop
+  # Run rubocop
+  rubocop_result = DeployCommands.run_rubocop
+
+  # Fail deploy if the fail regex matches, or the pass regex does not match
+  fail DeployError, 'Rubocop failed!' if rubocop_result.match(RUBOCOP_FAILED_REGEX) || !rubocop_result.match(RUBOCOP_PASSED_REGEX)
 end
 
 ###
@@ -34,7 +71,7 @@ def run_and_verify_tests
   test_result = DeployCommands.run_tests
   DeployCommands.output(test_result)
 
-  # Fail deploy if any strings matching "(non-zero-number) failure" occurred
+  # Fail deploy if the fail regex matches, or the pass regex does not match
   fail DeployError, 'Tests did not pass!' if test_result.match(TESTS_FAILED_REGEX) || !test_result.match(TESTS_PASSED_REGEX)
 end
 
@@ -66,6 +103,14 @@ class DeployCommands
 
   def self.input
     STDIN.gets.strip
+  end
+
+  def self.current_path
+    Dir.pwd
+  end
+
+  def self.run_rubocop
+    `rubocop`
   end
 
   def self.git_status
