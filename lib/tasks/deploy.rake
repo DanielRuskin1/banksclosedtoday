@@ -38,14 +38,14 @@ end
 # 2. Raising an exception if it is not correct
 def check_current_path
   # Log
-  DeployCommands.output('Checking path...')
+  DeployCommands.output('Checking path...'.yellow)
 
   # Fail if path is incorrect
   if DeployCommands.current_path != CORRECT_DEPLOY_PATH
-    fail DeployError, "You must be in the following path to deploy: #{CORRECT_DEPLOY_PATH}."
+    fail DeployError, "You must be in the following path to deploy: #{CORRECT_DEPLOY_PATH}.".red
   else
     # Log
-    DeployCommands.output('Path OK!')
+    DeployCommands.output('Path OK!'.green)
   end
 end
 
@@ -55,7 +55,7 @@ end
 # 2. Raising an exception if any offenses are detected
 def check_rubocop
   # Log
-  DeployCommands.output('Running rubocop...')
+  DeployCommands.output('Running rubocop...'.yellow)
 
   # Run rubocop and output result
   rubocop_result = DeployCommands.run_rubocop
@@ -63,10 +63,10 @@ def check_rubocop
 
   # Fail deploy if the fail regex matches, or the pass regex does not match
   if rubocop_result.match(RUBOCOP_FAILED_REGEX) || !rubocop_result.match(RUBOCOP_PASSED_REGEX)
-    fail DeployError, 'Rubocop failed!'
+    fail DeployError, 'Rubocop failed!'.red
   else
     # Log
-    DeployCommands.output('Rubocop passed!')
+    DeployCommands.output('Rubocop passed!'.green)
   end
 end
 
@@ -76,7 +76,7 @@ end
 # 2. Raising an exception if any tests failed.
 def run_and_verify_tests
   # Log
-  DeployCommands.output('Running tests...')
+  DeployCommands.output('Running tests...'.yellow)
 
   # Run tests and output result
   test_result = DeployCommands.run_tests
@@ -84,10 +84,10 @@ def run_and_verify_tests
 
   # Fail deploy if the fail regex matches, or the pass regex does not match
   if test_result.match(TESTS_FAILED_REGEX) || !test_result.match(TESTS_PASSED_REGEX)
-    fail DeployError, 'Tests did not pass!'
+    fail DeployError, 'Tests did not pass!'.red
   else
     # Log
-    DeployCommands.output('Tests passed!')
+    DeployCommands.output('Tests passed!'.green)
   end
 end
 
@@ -97,14 +97,14 @@ end
 # 2. Raising an exception if so.
 def check_for_uncommitted_changes
   # Log
-  DeployCommands.output('Checking uncommitted changes...')
+  DeployCommands.output('Checking uncommitted changes...'.yellow)
 
   # git_status will return a list of any modified/uncommitted files.
   if DeployCommands.git_status.present?
-    fail DeployError, 'Please commit changes before deploying.'
+    fail DeployError, 'Please commit changes before deploying.'.red
   else
     # Log
-    DeployCommands.output('No uncommitted changes!')
+    DeployCommands.output('No uncommitted changes!'.green)
   end
 end
 
@@ -122,7 +122,7 @@ def prompt_user_to_complete_deploy
   if DeployCommands.input == ACCEPT_DEPLOY_TEXT
     DeployCommands.run_deploy
   else
-    fail DeployError, 'User declined deploy!'
+    fail DeployError, 'User declined deploy!'.red
   end
 end
 

@@ -47,7 +47,7 @@ describe 'deploy task' do
       # Run task and make sure it raises a DeployError
       expect do
         run_rake_task
-      end.to raise_error(DeployError, 'You must be in the following path to deploy: /Users/danielruskin/code/banksclosedtoday.')
+      end.to raise_error(DeployError, 'You must be in the following path to deploy: /Users/danielruskin/code/banksclosedtoday.'.red)
 
       # Make sure that the task got to the correct point
       expect(DeployCommands).to have_received(:current_path)
@@ -74,7 +74,7 @@ describe 'deploy task' do
           # Run task and make sure it raises a DeployError
           expect do
             run_rake_task
-          end.to raise_error(DeployError, 'Rubocop failed!')
+          end.to raise_error(DeployError, 'Rubocop failed!'.red)
 
           # Make sure that the task got to the correct point
           expect(DeployCommands).to have_received(:current_path)
@@ -102,7 +102,7 @@ describe 'deploy task' do
             # Run task and make sure it raises a DeployError
             expect do
               run_rake_task
-            end.to raise_error(DeployError, 'Tests did not pass!')
+            end.to raise_error(DeployError, 'Tests did not pass!'.red)
 
             # Make sure that the task got to the correct point
             expect(DeployCommands).to have_received(:current_path)
@@ -131,7 +131,7 @@ describe 'deploy task' do
             # Run task and make sure it raises a DeployError
             expect do
               run_rake_task
-            end.to raise_error(DeployError, 'Please commit changes before deploying.')
+            end.to raise_error(DeployError, 'Please commit changes before deploying.'.red)
 
             # Make sure that the task got to the correct point
             expect(DeployCommands).to have_received(:current_path)
@@ -158,7 +158,7 @@ describe 'deploy task' do
                 # Run task and make sure it raises a DeployError
                 expect do
                   run_rake_task
-                end.to raise_error(DeployError, 'User declined deploy!')
+                end.to raise_error(DeployError, 'User declined deploy!'.red)
 
                 # Make sure that the task got to the correct point
                 expect(DeployCommands).to have_received(:current_path)

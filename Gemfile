@@ -58,6 +58,9 @@ group :development, :test do
 
   # Default dev/test env variables
   gem 'dotenv-rails', '2.0.1'
+
+  # Colorized output (e.g. for deploy logging)
+  gem 'colorize', '0.7.7'
 end
 
 group :test do

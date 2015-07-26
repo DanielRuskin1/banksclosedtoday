@@ -48,6 +48,7 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.9.1.1)
+    colorize (0.7.7)
     cookiejar (0.3.2)
     crack (0.4.2)
       safe_yaml (~> 1.0.0)
@@ -204,6 +205,7 @@ PLATFORMS
 DEPENDENCIES
   capybara (= 2.4.4)
   coffee-rails (= 3.2.2)
+  colorize (= 0.7.7)
   dotenv-rails (= 2.0.1)
   em-http-request (= 1.1.2)
   faraday (= 0.9.1)
