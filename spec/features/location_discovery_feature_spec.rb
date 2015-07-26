@@ -170,31 +170,6 @@ describe 'country discovery', type: :feature do
         # Make sure Rollbar was notified
         expect_rollbar_call(Faraday::TimeoutError)
       end
-
-      %w(ip_reserved ip_not_found).each do |type|
-        it "should handle reserved #{type} errors correctly" do
-          # Stub a GEOIP rqeuest with the relevant type;
-          # store the stubbed response body in a variable.
-          stub_request_failed_geoip_lookup(type)
-
-          # Go to page without country param
-          visit root_path
-
-          # Make sure GEOIP was attempted once
-          expect_one_geoip_request
-
-          # Make sure correct messaging is shown
-          expect_no_country_error
-
-          # Make sure Keen was called correctly
-          expect_country_lookup_failed_keen_call(UserLocationService::UnknownIpError)
-          expect_no_keen_call(:country_lookup_success)
-          expect_bank_status_check_keen_call(nil, error: :no_country)
-
-          # Rollbar should not have been notified
-          expect_no_rollbar_notifications
-        end
-      end
     end
 
     context 'when an unsupported country is found' do
@@ -280,143 +255,147 @@ describe 'country discovery', type: :feature do
     end
 
     context 'when a country is not found' do
-      before do
-        # Stub with ip_not_found errors
-        stub_request_failed_geoip_lookup('ip_not_found')
-      end
-
       after do
         # Rollbar should not be called during any of these tests
         expect_no_rollbar_notifications
       end
 
-      context 'when Javascript is enabled', js: true do
-        it 'should ask the user to provide one' do
-          # Stub GEOIP with non-existant country
-          # Go to normal day
-          Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
-
-          # Go to page without country param
-          visit root_path
-
-          # Make sure GEOIP was attempted once
-          expect_one_geoip_request
-
-          # Make sure correct messaging is shown
-          expect_no_country_error
-
-          # No "Go" buttons should be displayed, as the user has JS
-          expect(page).to_not have_button('Go!')
-
-          # Try submitting a different country - an auto-submit should occur
-          select('United States', from: 'country_code')
-
-          # GEOIP should not have been attempted again
-          # (e.g. and should still be at 1 call total)
-          expect_one_geoip_request
-
-          # Make sure correct messaging is shown
-          expect_open_us_day
-
-          # Make sure KeenService was called correctly
-          expect_country_lookup_failed_keen_call(UserLocationService::UnknownIpError)
-          expect_no_keen_call(:country_lookup_success)
-          expect_bank_status_check_keen_call(nil, error: :no_country)
-          expect_bank_status_check_keen_call('US')
-        end
-      end
-
-      context 'when Javascript is not enabled' do
-        it 'should do the same thing, but with a manual form submit' do
-          # Go to normal day
-          Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
-
-          # Go to page without country param
-          visit root_path
-
-          # Make sure GEOIP was attempted once
-          expect_one_geoip_request
-
-          # Make sure correct messaging is shown
-          expect_no_country_error
-
-          # Try choosing a different country
-          select('United States', from: 'country_code')
-
-          # Manually submit form
-          click_button('Go!')
-
-          # GEOIP should not have been attempted again
-          # (e.g. and should still be at 1 call total)
-          expect_one_geoip_request
-
-          # Make sure correct messaging is shown
-          expect_open_us_day
-
-          # Make sure KeenService was called correctly
-          expect_country_lookup_failed_keen_call(UserLocationService::UnknownIpError)
-          expect_no_keen_call(:country_lookup_success)
-          expect_bank_status_check_keen_call(nil, error: :no_country)
-          expect_bank_status_check_keen_call('US')
-        end
-      end
-
-      context 'when an unsupported country is then selected' do
-        context 'when Javascript is enabled', js: true do
-          it 'should ask the user to email for support, or provide a different country' do
-            # Go to normal day
-            Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
-
-            # Go to page without country param
-            visit root_path
-
-            # Make sure GEOIP was attempted once
-            expect_one_geoip_request
-
-            # Make sure correct messaging is shown
-            expect_no_country_error
-
-            # No "Go" buttons should be displayed, as the user has JS
-            expect(page).to_not have_button('Go!')
-
-            # Try choosing an unsupported country
-            select('Other', from: 'country_code')
-
-            # GEOIP should not have been attempted again
-            # (e.g. and should still be at 1 call total)
-            expect_one_geoip_request
-
-            # Make sure correct messaging is shown
-            expect_unsupported_country_error
+      %w(ip_reserved ip_not_found).each do |type|
+        context "with a #{type} error" do
+          before do
+            # Stub with appropriate error type
+            stub_request_failed_geoip_lookup(type)
           end
-        end
 
-        context 'when Javascript is not enabled' do
-          it 'should do the same thing, but with a manual form submit' do
-            # Go to normal day
-            Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
+          context 'when Javascript is enabled', js: true do
+            it 'should ask the user to provide one' do
+              # Stub GEOIP with non-existant country
+              # Go to normal day
+              Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
 
-            # Go to page without country param
-            visit root_path
+              # Go to page without country param
+              visit root_path
 
-            # Make sure GEOIP was attempted once
-            expect_one_geoip_request
+              # Make sure GEOIP was attempted once
+              expect_one_geoip_request
 
-            # Make sure correct messaging is shown
-            expect_no_country_error
+              # Make sure correct messaging is shown
+              expect_no_country_error
 
-            # Try choosing an unsupported country
-            select('Other', from: 'country_code')
+              # No "Go" buttons should be displayed, as the user has JS
+              expect(page).to_not have_button('Go!')
 
-            # Manually submit form
-            click_button('Go!')
+              # Try submitting a different country - an auto-submit should occur
+              select('United States', from: 'country_code')
 
-            # GEOIP should not have been attempted again
-            # (e.g. and should still be at 1 call total)
-            expect_one_geoip_request
+              # GEOIP should not have been attempted again
+              # (e.g. and should still be at 1 call total)
+              expect_one_geoip_request
 
-            # Make sure correct messaging is shown
-            expect_unsupported_country_error
+              # Make sure correct messaging is shown
+              expect_open_us_day
+
+              # Make sure KeenService was called correctly
+              expect_country_lookup_failed_keen_call(UserLocationService::UnknownIpError)
+              expect_no_keen_call(:country_lookup_success)
+              expect_bank_status_check_keen_call(nil, error: :no_country)
+              expect_bank_status_check_keen_call('US')
+            end
+          end
+
+          context 'when Javascript is not enabled' do
+            it 'should do the same thing, but with a manual form submit' do
+              # Go to normal day
+              Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
+
+              # Go to page without country param
+              visit root_path
+
+              # Make sure GEOIP was attempted once
+              expect_one_geoip_request
+
+              # Make sure correct messaging is shown
+              expect_no_country_error
+
+              # Try choosing a different country
+              select('United States', from: 'country_code')
+
+              # Manually submit form
+              click_button('Go!')
+
+              # GEOIP should not have been attempted again
+              # (e.g. and should still be at 1 call total)
+              expect_one_geoip_request
+
+              # Make sure correct messaging is shown
+              expect_open_us_day
+
+              # Make sure KeenService was called correctly
+              expect_country_lookup_failed_keen_call(UserLocationService::UnknownIpError)
+              expect_no_keen_call(:country_lookup_success)
+              expect_bank_status_check_keen_call(nil, error: :no_country)
+              expect_bank_status_check_keen_call('US')
+            end
+          end
+
+          context 'when an unsupported country is then selected' do
+            context 'when Javascript is enabled', js: true do
+              it 'should ask the user to email for support, or provide a different country' do
+                # Go to normal day
+                Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
+
+                # Go to page without country param
+                visit root_path
+
+                # Make sure GEOIP was attempted once
+                expect_one_geoip_request
+
+                # Make sure correct messaging is shown
+                expect_no_country_error
+
+                # No "Go" buttons should be displayed, as the user has JS
+                expect(page).to_not have_button('Go!')
+
+                # Try choosing an unsupported country
+                select('Other', from: 'country_code')
+
+                # GEOIP should not have been attempted again
+                # (e.g. and should still be at 1 call total)
+                expect_one_geoip_request
+
+                # Make sure correct messaging is shown
+                expect_unsupported_country_error
+              end
+            end
+
+            context 'when Javascript is not enabled' do
+              it 'should do the same thing, but with a manual form submit' do
+                # Go to normal day
+                Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
+
+                # Go to page without country param
+                visit root_path
+
+                # Make sure GEOIP was attempted once
+                expect_one_geoip_request
+
+                # Make sure correct messaging is shown
+                expect_no_country_error
+
+                # Try choosing an unsupported country
+                select('Other', from: 'country_code')
+
+                # Manually submit form
+                click_button('Go!')
+
+                # GEOIP should not have been attempted again
+                # (e.g. and should still be at 1 call total)
+                expect_one_geoip_request
+
+                # Make sure correct messaging is shown
+                expect_unsupported_country_error
+              end
+            end
           end
         end
       end
