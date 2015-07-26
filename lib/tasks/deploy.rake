@@ -132,13 +132,13 @@ def prompt_user_to_complete_deploy
     fail DeployError, 'User declined deploy!'.red
   else
     # Log
-    DeployCommands.output('User accepted deploy!')
+    DeployCommands.output('User accepted deploy!'.green)
   end
 end
 
 def complete_deploy
   # Log
-  DeployCommands.output('Completing deploy...')
+  DeployCommands.output('Completing deploy...'.green)
 
   # Deploy and output result
   deploy_result = DeployCommands.run_deploy
@@ -149,13 +149,15 @@ def complete_deploy
     fail DeployError, 'Deploy failed!'.red
   else
     # Log
-    DeployCommands.output('Tests passed!'.green)
+    DeployCommands.output('Deploy completed!'.green)
   end
 end
 
 ###
 # Wrapper for various method calls.
 # Using a wrapper allows for simple testing (e.g. as calls can be stubbed).
+# 2>&1 is used for commands that need to recognize stderr output;
+# it redirects stderr to stdout (which ruby recognizes).
 class DeployCommands
   def self.output(message)
     puts message
@@ -174,7 +176,7 @@ class DeployCommands
   end
 
   def self.git_status
-    `git status -s`
+    `git status -s 2>&1`
   end
 
   def self.run_tests
@@ -182,6 +184,6 @@ class DeployCommands
   end
 
   def self.run_deploy
-    `git push banksclosedtoday_heroku master`
+    `git push banksclosedtoday_heroku master 2>&1`
   end
 end
