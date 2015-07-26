@@ -154,7 +154,6 @@ class DeployCommands
     `rspec`
   end
 
-  # Push from Github to Heroku
   def self.run_deploy
     `git push banksclosedtoday_heroku master`
   end
