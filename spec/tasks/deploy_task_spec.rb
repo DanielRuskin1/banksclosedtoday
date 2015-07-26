@@ -66,7 +66,7 @@ describe 'deploy task' do
     end
 
     context 'when rubocop fails' do
-      ['16 files inspected, 1 offense detected', '16 files inspected, 2 offenses detected', 'no offense detected 16 files inspected, 1 offense detected'].each do |failure_result_string|
+      ['16 files inspected, 1 offense detected', '16 files inspected, 2 offenses detected', 'no offenses detected 16 files inspected, 1 offense detected'].each do |failure_result_string|
         it "should abort for #{failure_result_string}" do
           # Stub DeployCommands#run_rubocop to return the failure_result_string
           allow(DeployCommands).to receive(:run_rubocop).and_return(failure_result_string)
@@ -94,7 +94,7 @@ describe 'deploy task' do
       end
 
       context 'when tests fail' do
-        ['2392 examples, 111 failures', '35 examples, 10 failures', '20 examples, 1 failure', 'WeirdSample'].each do |failure_result_string|
+        ['2392 examples, 111 failures', '35 examples, 10 failures', '20 examples, 1 failure', '20 examples, 0 failures, 20 examples, 2 failures', 'WeirdSample'].each do |failure_result_string|
           it "should abort for #{failure_result_string}" do
             # Stub DeployCommands#run_tests to return the relevant failure result string
             allow(DeployCommands).to receive(:run_tests).and_return(failure_result_string)
