@@ -60,7 +60,10 @@ class UserLocationService
     UserLocationServiceResponse.new(success: false)
   end
 
+  ###
   # Helper method to send a GEOIP lookup request with the given remote IP
+  # This method should not be used directly; the above location_for_request method should be used instead.
+  # The location_for_request method includes logging and error handling logic.
   REQUEST_TIMEOUT = 2.seconds # Actual timeout ends up being twice this (read timeout + open timeout)
   def self.send_request_with_remote_ip(remote_ip)
     # Run request and get response
@@ -112,7 +115,7 @@ class UserLocationService
 
   ###
   # Helper method to take in a failed Faraday response, then figure out what went wrong.
-  # UserLocationService errors will be raised.
+  # UserLocationServiceErrors will be raised.
   def self.handle_response_error(response)
     if [400, 404].include?(response.status)
       # Try parsing the JSON
@@ -132,7 +135,7 @@ class UserLocationService
   end
 
   ###
-  # Helper method to raise the provided error class,
+  # Helper method to raise the provided error class
   # with the provided Faraday response as the message.
   def self.raise_error_with_response(error_class, response)
     fail error_class, "#{response.status}: #{response.body}"
