@@ -51,7 +51,7 @@ class UserLocationService
                              tracking_params: { country_code: country_code, error: exception.class.to_s })
 
     # Notify Rollbar if the error type is not included in
-    # EXPECTED_EXCEPTIONS
+    # the EXPECTED_EXCEPTIONS constant.
     unless EXPECTED_EXCEPTIONS.any? { |type| exception.is_a?(type) }
       Rollbar.error(exception)
     end
