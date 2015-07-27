@@ -1,17 +1,17 @@
 # UserLocationService is used to perform GEOIP lookups on users.  This allows us to serve country-specific messaging.
 class UserLocationService
+  # UserCountryService exception classes
+  class UserLocationServiceError < StandardError; end
+  class UnknownResponseFormatError < UserLocationServiceError; end # GEOIP response data is in an unknown format
+  class UnknownResponseError < UserLocationServiceError; end # An unknown error was sent back by the GEOIP service
+  class UnknownIpError < UserLocationServiceError; end # The GEOIP service cannot lookup the provided IP address
+
   # Service to use for GEOIP lookups
   GEOIP_SERVICE_URL = 'https://geoip.maxmind.com/geoip/v2.1/city'
 
   # GEOIP credentials
   GEOIP_USERNAME = ENV.fetch('GEOIP_USERNAME')
   GEOIP_PASSWORD = ENV.fetch('GEOIP_PASSWORD')
-
-  # UserCountryService exception classes
-  class UserLocationServiceError < StandardError; end
-  class UnknownResponseFormatError < UserLocationServiceError; end # GEOIP response data is in an unknown format
-  class UnknownResponseError < UserLocationServiceError; end # An unknown error was sent back by the GEOIP service
-  class UnknownIpError < UserLocationServiceError; end # The GEOIP service cannot lookup the provided IP address
 
   ###
   # Error codes specified in this list represent an IP address that the GEOIP service cannot lookup.
