@@ -14,7 +14,7 @@ describe 'weekends', :feature do
   context 'US' do
     before do
       # Stub GEOIP lookup to return US
-      stub_geoip_lookup('US')
+      stub_geoip_lookup('normal_success', country_code: 'US')
     end
 
     it 'should show bank-closed messaging on Saturday' do

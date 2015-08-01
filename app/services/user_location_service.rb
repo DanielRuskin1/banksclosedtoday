@@ -99,7 +99,16 @@ class UserLocationService
     parsed_json = JSON.parse!(response.body)
 
     # Get country element; fail if not present
-    country_element = parsed_json['country']
+    # There are three possible elements that can include a user's country:
+    # 1. country - This is the most reliable, as it is the country which Maxmind has determined is most likely
+    #    to be correct.
+    # 2. represented_country - If the country parameter is not available, the user could be a special case
+    #    (e.g. on a military base).  When this happens, represented_country will include the correct counyry.
+    # 3. registered_country - This represents the country that the ISP registered their IP for.  This may not always
+    #    represent the actual user, and so should be used as a last resort.
+    country_element = parsed_json['country'] ||
+                      parsed_json['represented_country'] ||
+                      parsed_json['registered_country']
     raise_error_with_response(UnknownResponseFormatError, response) unless country_element
 
     # Get iso_code; fail if not present

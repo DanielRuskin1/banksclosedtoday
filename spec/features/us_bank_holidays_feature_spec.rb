@@ -3,7 +3,7 @@ require 'spec_helper'
 describe 'US bank holidays', type: :feature do
   before do
     # Stub GEOIP lookup to US for this test
-    stub_geoip_lookup('US')
+    stub_geoip_lookup('normal_success', country_code: 'US')
 
     # Spy on Rollbar for this test
     spy_on_rollbar

@@ -56,7 +56,7 @@ describe 'country discovery', type: :feature do
   context 'when a user does not provide a country_code param' do
     it 'should use GEOIP lookup and show correct messaging' do
       # Stub GEOIP
-      stub_geoip_lookup('US')
+      stub_geoip_lookup('normal_success', country_code: 'US')
 
       # Go to normal day
       Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
@@ -67,7 +67,7 @@ describe 'country discovery', type: :feature do
       # Make sure GEOIP was attempted once
       expect_one_geoip_request
 
-      # Make sure correct messaging is shown (the same as above)
+      # Make sure correct US messaging is shown
       expect_open_us_day
 
       # Make sure KeenService was called correctly
@@ -79,12 +79,41 @@ describe 'country discovery', type: :feature do
       expect_no_rollbar_notifications
     end
 
+    context 'successful GEOIP lookup country parsing' do
+      %w(only_registered_country only_represented_country).each do |type|
+        it "should parse the country from #{type} responses correctly" do
+          # Stub GEOIP
+          stub_geoip_lookup(type, country_code: 'US')
+
+          # Go to normal day
+          Timecop.travel(Time.parse('January 5, 2015').in_time_zone('Eastern Time (US & Canada)'))
+
+          # Go to page without country param
+          visit root_path
+
+          # Make sure GEOIP was attempted once
+          expect_one_geoip_request
+
+          # Make sure correct US messaging is shown
+          expect_open_us_day
+
+          # Make sure KeenService was called correctly
+          expect_country_lookup_success_keen_call
+          expect_no_keen_call(:country_lookup_failed)
+          expect_bank_status_check_keen_call('US')
+
+          # Expect no Rollbar notifications
+          expect_no_rollbar_notifications
+        end
+      end
+    end
+
     context 'GEOIP failure handling' do
       %w(invalid_json invalid_lookup_error_json no_country_element no_iso_code).each do |type|
         it "should handle #{type} responses correctly" do
           # Stub a GEOIP rqeuest with the relevant type;
           # store the stubbed response body in a variable.
-          stub_request_failed_geoip_lookup(type)
+          stub_geoip_lookup(type)
 
           # Go to page without country param
           visit root_path
@@ -107,7 +136,7 @@ describe 'country discovery', type: :feature do
 
       it 'should handle unknown lookup failures correctly' do
         # Stub a GEOIP rqeuest with an unknown_lookup_error
-        stub_request_failed_geoip_lookup('unknown_lookup_error')
+        stub_geoip_lookup('unknown_lookup_error')
 
         # Go to page without country param
         visit root_path
@@ -175,7 +204,7 @@ describe 'country discovery', type: :feature do
     context 'when an unsupported country is found' do
       before do
         # Stub GEOIP with unsupported country
-        stub_geoip_lookup('NL')
+        stub_geoip_lookup('normal_success', country_code: 'NL')
       end
 
       after do
@@ -264,7 +293,7 @@ describe 'country discovery', type: :feature do
         context "with a #{type} error" do
           before do
             # Stub with appropriate error type
-            stub_request_failed_geoip_lookup(type)
+            stub_geoip_lookup(type)
           end
 
           context 'when Javascript is enabled', js: true do
