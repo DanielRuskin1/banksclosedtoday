@@ -1,5 +1,8 @@
+# Env variables that are required for a deploy to take place
+REQUIRED_ENV_VARIABLES = ['DEPLOY_ORIGINATION_PATH', 'HEROKU_APP_URL', 'HEROKU_REMOTE_NAME']
+
 # Correct path for deploys to take place in
-CORRECT_DEPLOY_PATH = ENV.fetch('DEPLOY_ORIGINATION_PATH')
+CORRECT_DEPLOY_PATH = ENV['DEPLOY_ORIGINATION_PATH']
 
 # Test regex constants
 TESTS_FAILED_REGEX = /, [^0].* failure/ # If this matches, the task will assume that tests failed
@@ -12,12 +15,20 @@ RUBOCOP_PASSED_REGEX = /, no offenses detected/
 # Deploy constants
 ACCEPT_DEPLOY_TEXT = 'DEPLOY'
 DEPLOY_FAILED_REGEX = /Push rejected/
-DEPLOY_PASSED_REGEX = /#{Regexp.quote(ENV.fetch("HEROKU_APP_URL"))} deployed to Heroku/
+DEPLOY_PASSED_REGEX = /#{Regexp.quote(ENV["HEROKU_APP_URL"])} deployed to Heroku/
 
 # Error class for exceptions that can occur during a deploy attempt
 class DeployError < StandardError; end
 
 task :deploy do
+  # Make sure that the current environment is eligible for a deploy
+  check_environment
+
+  # Make sure that all required env variables are set
+  # If are any are not present, a deploy is not possible
+  # (e.g. since we might not know where to deploy to, or what constitutes a success)
+  check_env_variables
+
   # Check current path
   check_current_path
 
@@ -35,6 +46,24 @@ task :deploy do
 
   # Complete the deploy
   complete_deploy
+end
+
+###
+# Helper method for:
+# 1. Checking whether the current env is production
+# 2. Failing if so
+def check_environment
+  fail DeployError, "You cannot deploy from the production environment!".red if DeployCommands.rails_environment.production?
+end
+
+###
+# Helper method for:
+# 1. Checking whether all required env variables are present
+# 2. Failing if not
+def check_env_variables
+  REQUIRED_ENV_VARIABLES.each do |required_env_variable|
+    fail DeployError, "Env variable #{required_env_variable} is not present!".red unless DeployCommands.get_env_variable(required_env_variable)
+  end
 end
 
 ###
@@ -167,6 +196,14 @@ class DeployCommands
     STDIN.gets.strip
   end
 
+  def self.rails_environment
+    Rails.env
+  end
+
+  def self.get_env_variable(variable_name)
+    ENV[variable_name]
+  end
+
   def self.current_path
     Dir.pwd
   end
@@ -184,6 +221,6 @@ class DeployCommands
   end
 
   def self.run_deploy
-    `git push #{ENV.fetch('HEROKU_BRANCH_NAME')} master 2>&1`
+    `git push #{ENV['HEROKU_REMOTE_NAME']} master 2>&1`
   end
 end
