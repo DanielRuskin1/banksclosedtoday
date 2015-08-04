@@ -1,5 +1,5 @@
 # Correct path for deploys to take place in
-CORRECT_DEPLOY_PATH = '/Users/danielruskin/code/banksclosedtoday'
+CORRECT_DEPLOY_PATH = ENV.fetch('DEPLOY_ORIGINATION_PATH')
 
 # Test regex constants
 TESTS_FAILED_REGEX = /, [^0].* failure/ # If this matches, the task will assume that tests failed
@@ -12,7 +12,7 @@ RUBOCOP_PASSED_REGEX = /, no offenses detected/
 # Deploy constants
 ACCEPT_DEPLOY_TEXT = 'DEPLOY'
 DEPLOY_FAILED_REGEX = /Push rejected/
-DEPLOY_PASSED_REGEX = %r{https://banksclosedtoday.herokuapp.com/ deployed to Heroku}
+DEPLOY_PASSED_REGEX = /#{Regexp.quote(ENV.fetch("HEROKU_APP_URL"))} deployed to Heroku/
 
 # Error class for exceptions that can occur during a deploy attempt
 class DeployError < StandardError; end
@@ -184,6 +184,6 @@ class DeployCommands
   end
 
   def self.run_deploy
-    `git push banksclosedtoday_heroku master 2>&1`
+    `git push #{ENV.fetch('HEROKU_BRANCH_NAME')} master 2>&1`
   end
 end
