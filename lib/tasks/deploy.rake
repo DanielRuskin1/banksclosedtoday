@@ -15,7 +15,7 @@ RUBOCOP_PASSED_REGEX = /, no offenses detected/
 # Deploy constants
 ACCEPT_DEPLOY_TEXT = 'DEPLOY'
 DEPLOY_FAILED_REGEX = /Push rejected/
-DEPLOY_PASSED_REGEX = /#{Regexp.quote(ENV["HEROKU_APP_URL"])} deployed to Heroku/
+DEPLOY_PASSED_REGEX = ENV['HEROKU_APP_URL'].present? ? /#{Regexp.quote(ENV["HEROKU_APP_URL"])} deployed to Heroku/ : nil
 
 # Error class for exceptions that can occur during a deploy attempt
 class DeployError < StandardError; end
