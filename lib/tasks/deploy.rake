@@ -1,5 +1,5 @@
 # Env variables that are required for a deploy to take place
-REQUIRED_ENV_VARIABLES = %w(DEPLOY_ORIGINATION_PATH HEROKU_APP_URL HEROKU_REMOTE_NAME)
+REQUIRED_ENV_VARIABLES = %w(DEPLOY_ORIGINATION_PATH HEROKU_SUCCESS_MESSAGE HEROKU_REMOTE_NAME)
 
 # Correct path for deploys to take place in
 CORRECT_DEPLOY_PATH = ENV['DEPLOY_ORIGINATION_PATH']
@@ -14,8 +14,8 @@ RUBOCOP_PASSED_REGEX = /, no offenses detected/
 
 # Deploy constants
 ACCEPT_DEPLOY_TEXT = 'DEPLOY'
-DEPLOY_FAILED_REGEX = /Push rejected/
-DEPLOY_PASSED_REGEX = ENV['HEROKU_APP_URL'].present? ? /#{Regexp.quote(ENV["HEROKU_APP_URL"])} deployed to Heroku/ : nil
+DEPLOY_FAILED_STRING = "Push rejected"
+DEPLOY_PASSED_STRING = ENV['HEROKU_SUCCESS_MESSAGE']
 
 # Error class for exceptions that can occur during a deploy attempt
 class DeployError < StandardError; end
@@ -174,7 +174,7 @@ def complete_deploy
   DeployCommands.output(deploy_result)
 
   # Check if deploy was successful, then fail/output as necessary
-  if deploy_result.match(DEPLOY_FAILED_REGEX) || !deploy_result.match(DEPLOY_PASSED_REGEX)
+  if deploy_result.include?(DEPLOY_FAILED_STRING) || !deploy_result.include?(DEPLOY_PASSED_STRING)
     fail DeployError, 'Deploy failed!'.red
   else
     # Log
