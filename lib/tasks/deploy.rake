@@ -14,7 +14,7 @@ RUBOCOP_PASSED_REGEX = /, no offenses detected/
 
 # Deploy constants
 ACCEPT_DEPLOY_TEXT = 'DEPLOY'
-DEPLOY_FAILED_STRING = "Push rejected"
+DEPLOY_FAILED_STRING = 'Push rejected'
 DEPLOY_PASSED_STRING = ENV['HEROKU_SUCCESS_MESSAGE']
 
 # Error class for exceptions that can occur during a deploy attempt
