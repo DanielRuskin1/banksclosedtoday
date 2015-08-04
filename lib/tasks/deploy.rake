@@ -1,5 +1,5 @@
 # Env variables that are required for a deploy to take place
-REQUIRED_ENV_VARIABLES = ['DEPLOY_ORIGINATION_PATH', 'HEROKU_APP_URL', 'HEROKU_REMOTE_NAME']
+REQUIRED_ENV_VARIABLES = %w(DEPLOY_ORIGINATION_PATH HEROKU_APP_URL HEROKU_REMOTE_NAME)
 
 # Correct path for deploys to take place in
 CORRECT_DEPLOY_PATH = ENV['DEPLOY_ORIGINATION_PATH']
@@ -53,7 +53,7 @@ end
 # 1. Checking whether the current env is production
 # 2. Failing if so
 def check_environment
-  fail DeployError, "You cannot deploy from the production environment!".red if DeployCommands.rails_environment.production?
+  fail DeployError, 'You cannot deploy from the production environment!'.red if DeployCommands.rails_environment.production?
 end
 
 ###
