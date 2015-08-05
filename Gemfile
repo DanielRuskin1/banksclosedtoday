@@ -8,7 +8,7 @@ gem 'rails', '3.2.21'
 gem 'thin', '1.6.3'
 
 # Exception monitoring
-gem 'rollbar', '1.5.3'
+gem 'rollbar', '2.1.1'
 
 # Used for holiday detection in BankService#bank_status
 gem 'holidays', '2.2.0'
