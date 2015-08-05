@@ -28,7 +28,7 @@
           <% when :no_country %>
             Can you tell us?
           <% when :unsupported_country %>
-            Shoot <%= render("shared/creator_email", link_text: "us") %> over an email to request support!
+            Shoot <%= render("shared/creator_email", link_text: "us") %> an email to request support!
           <% end %>
         <% else %>
           <% if @bank_closure_reason.present? %>
