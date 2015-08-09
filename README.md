@@ -21,8 +21,8 @@ Various services are used for the operation of the app.  The table below shows a
 ## Environment Settings
 In addition to the above dependencies, the app requires several additional changes to match your environment.
 
-| Name                     | Description                             | Required by Default | Where to Set                                                                             |
-| -------------            | -------------                           | ------------        | ------------                                                                             |
-| Creator Email Address    | The email address of the site operator. | Yes                 | `CREATOR_EMAIL_ADDRESS` env variable and error pages (public/500.html, public/404.html)  |
-| Rails secret token       | Necessary for cookie signing            | Yes                  | Set `RAILS_SECRET_TOKEN` env  to random value (see config/initializers/secret_token.rb) |
-| Google Site Verification | Necessary for google webmaster panel    | No                  | Signup on Google and verify site with DNS setting                                        |
+| Name                     | Description                             | Required by Default | Where to Set                                                                                    |
+| -------------            | -------------                           | ------------        | ------------                                                                                    |
+| Creator Email Address    | The email address of the site operator. | Yes                 | `CREATOR_EMAIL_ADDRESS` env variable and error pages (public/500.html, public/404.html)         |
+| Rails secret token       | Necessary for cookie signing            | Yes                 | Set `RAILS_SECRET_TOKEN` env variable to random value (see config/initializers/secret_token.rb) |
+| Google Site Verification | Necessary for google webmaster panel    | No                  | Signup on Google and verify site with DNS setting                                               |
