@@ -1,4 +1,8 @@
 # Env variables that are required for a deploy to take place
+# DEPLOY_ORIGINATION_PATH - The path that you will start deploys from (e.g. /Users/MyUsername/code/banksclosedtoday)
+# HEROKU_SUCCESS_MESSAGE - The message that will be considered representative of a successful deploy
+# HEROKU_REMOTE_NAME - The name of the git remote that represents your Heroku application
+# These should be set in the .ENV file - not in prod!
 REQUIRED_ENV_VARIABLES = %w(DEPLOY_ORIGINATION_PATH HEROKU_SUCCESS_MESSAGE HEROKU_REMOTE_NAME)
 
 # Correct path for deploys to take place in

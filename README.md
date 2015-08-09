@@ -9,14 +9,14 @@
 ## Services
 Various services are used for the operation of the app.  The table below shows all such services that are currently used by the app.
 
-| Service       | Purpose                    | Required by Default    | How To Setup                                                                                                 |
-| ------------- | -------------              | ------------           | --------------                                                                                               |
-| Heroku        | Hosting service            | No                     | Signup for heroku; set `REQUIRED_ENV_VARIABLES` from tasks/deploy.rake; run task and complete first deploy   |
-| Keen.io       | Usage metrics (e.g. usage) | Yes                    | Use Addon on Heroku (or signup and manually set env variables)                                               |
-| NewRelic      | App metrics (e.g. speed)   | Yes                    | Use Addon on Heroku (or signup and manually set env variables)                                               |
-| Papertrail    | App logging                | No                     | Use Addon on Heroku (or signup and manually set env variables)                                               |
-| Rollbar       | Exception tracking         | Yes                    | Use Addon on Heroku (or signup and manually set env variables)                                               |
-| Maxmind       | GEOIP lookups              | Yes                    | Signup on https://www.maxmind.com/en/geoip2-city and set `GEOIP_USERNAME` and `GEOIP_PASSWORD` env variables |
+| Service       | Purpose                    | Required by Default    | How To Setup                                                                                                                            |
+| ------------- | -------------              | ------------           | --------------                                                                                                                          |
+| Heroku        | Hosting service            | No                     | Signup for heroku; set `REQUIRED_ENV_VARIABLES` from tasks/deploy.rake in `.ENV` file (not prod!); run task and complete first deploy   |
+| Keen.io       | Usage metrics (e.g. usage) | Yes                    | Use Addon on Heroku (or signup and manually set env variables)                                                                          |
+| NewRelic      | App metrics (e.g. speed)   | Yes                    | Use Addon on Heroku (or signup and manually set env variables)                                                                          |
+| Papertrail    | App logging                | No                     | Use Addon on Heroku (or signup and manually set env variables)                                                                          |
+| Rollbar       | Exception tracking         | Yes                    | Use Addon on Heroku (or signup and manually set env variables)                                                                          |
+| Maxmind       | GEOIP lookups              | Yes                    | Signup on https://www.maxmind.com/en/geoip2-city and set `GEOIP_USERNAME` and `GEOIP_PASSWORD` env variables                            |
 
 ## Environment Settings
 In addition to the above dependencies, the app requires several additional changes to match your environment.
