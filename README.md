@@ -6,12 +6,23 @@
 ## Getting Started
 "Are Banks Closed Today?" is very simple to setup on Heroku.  Simply clone the repository, ensure that all dependencies are setup, then deploy to your Heroku application.
 
-## Dependencies
-In addition to the various dependencies specified in the Gemfile, some additional services are also used.  The table below shows all such services that are currently used by the app.
+## Services
+Various services are used for the operation of the app.  The table below shows all such services that are currently used by the app.
 
-| Service       | Purpose                    | Required by Default    | How To Setup                                                   |
-| ------------- | -------------              | ------------           | --------------                                                 |
-| Keen.io       | Usage metrics (e.g. usage) | Yes                    | Use Addon on Heroku (or signup and manually set env variables) |
-| NewRelic      | App metrics (e.g. speed)   | Yes                    | Use Addon on Heroku (or signup and manually set env variables) |
-| Papertrail    | App logging                | No                     | Use Addon on Heroku (or signup and manually set env variables) |
-| Rollbar       | Exception tracking         | Yes                    | Use Addon on Heroku (or signup and manually set env variables) |
+| Service       | Purpose                    | Required by Default    | How To Setup                                                                                                 |
+| ------------- | -------------              | ------------           | --------------                                                                                               |
+| Heroku        | Hosting service            | No                     | Signup for heroku; set REQUIRED_ENV_VARIABLES from tasks/deploy.rake; run task and complete first deploy     |
+| Keen.io       | Usage metrics (e.g. usage) | Yes                    | Use Addon on Heroku (or signup and manually set env variables)                                               |
+| NewRelic      | App metrics (e.g. speed)   | Yes                    | Use Addon on Heroku (or signup and manually set env variables)                                               |
+| Papertrail    | App logging                | No                     | Use Addon on Heroku (or signup and manually set env variables)                                               |
+| Rollbar       | Exception tracking         | Yes                    | Use Addon on Heroku (or signup and manually set env variables)                                               |
+| Maxmind       | GEOIP lookups              | Yes                    | Signup on https://www.maxmind.com/en/geoip2-city and set `GEOIP_USERNAME` and `GEOIP_PASSWORD` env variables |
+
+## Environment Settings
+In addition to the above dependencies, the app requires several additional changes to match your environment.
+
+| Name                     | Description                             | Required by Default | Where to Set
+| -------------            | -------------                           | ------------        | ------------
+| Creator Email Address    | The email address of the site operator. | Yes                 | CREATOR_EMAIL_ADDRESS env variable and error pages (public/500.html, public/404.html)
+| Rails secret token       | Necessary for cookie signing            | Yes                 | Set RAILS_SECRET_TOKEN to random value (see config/initializers/secret_token.rb)
+| Google Site Verification | Necessary for google webmaster panel    | No                  | Signup on Google and verify site with DNS setting
