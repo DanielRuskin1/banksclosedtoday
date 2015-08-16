@@ -25,4 +25,4 @@ In addition to the above dependencies, the app requires several additional chang
 | -------------            | -------------                           | ------------        | ------------                                                                                    |
 | Creator Email Address    | The email address of the site operator. | Yes                 | `CREATOR_EMAIL_ADDRESS` env variable and error pages (public/500.html, public/404.html)         |
 | Rails secret token       | Necessary for cookie signing            | Yes                 | Set `RAILS_SECRET_TOKEN` env variable to random value (see config/initializers/secret_token.rb) |
-| Google Site Verification | Necessary for google webmaster panel    | No                  | Signup on Google and verify site with DNS setting                                               |
+| Google Site Verification | Necessary for google webmaster panel    | No                  | Signup on Google and verify site with DNS record                                                |
