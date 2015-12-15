@@ -10,7 +10,7 @@ gem 'thin', '1.6.3'
 # Exception monitoring
 gem 'rollbar', '2.1.1'
 
-# Used for holiday detection in BankService#bank_status
+# Used for holiday detection in Bank#get_applicable_holiday_names_for_day
 gem 'holidays', '2.2.0'
 
 # NewRelic site monitoring

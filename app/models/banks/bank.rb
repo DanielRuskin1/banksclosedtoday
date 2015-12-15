@@ -3,9 +3,6 @@ class Bank
   # Generic "the weekend" closure reason
   THE_WEEKEND_CLOSURE_MESSAGE = 'the weekend'
 
-  # Base exception class for BankService errors
-  class BankError < StandardError; end
-
   ###
   # Name of the schedule used to determine bank statuses
   # This must be implemented in subclasses.
