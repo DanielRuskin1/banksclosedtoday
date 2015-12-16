@@ -17,6 +17,7 @@ Various services are used for the operation of the app.  The table below shows a
 | Papertrail    | App logging                | No                     | Use Addon on Heroku (or signup and manually set env variables)                                                                          |
 | Rollbar       | Exception tracking         | Yes                    | Use Addon on Heroku (or signup and manually set env variables)                                                                          |
 | Maxmind       | GEOIP lookups              | Yes                    | Signup on https://www.maxmind.com/en/geoip2-city and set `GEOIP_USERNAME` and `GEOIP_PASSWORD` env variables                            |
+| Uptime Robot  | Uptime monitoring          | No                     | Signup on https://uptimerobot.com and configure for your site                                                                           |
 
 ## Environment Settings
 In addition to the above dependencies, the app requires several additional changes to match your environment.
