@@ -1,7 +1,7 @@
 # Are Banks Closed Today?
 
 ## Welcome!
-"Are Banks Closed Today?" is a Rails application for checking whether banks in a given country are open.  Check it out at http://are.banks.closed.today/.
+"Are Banks Closed Today?" is a Rails application for checking whether banks in a given country are open.  Check it out at http://banksclosedtoday.herokuapp.com/.  If you're not able to access the site, you might need to wait a few hours (sorry - I'm on the free heroku plan).
 
 ## Getting Started
 "Are Banks Closed Today?" is very simple to setup on Heroku.  Simply clone the repository, ensure that all dependencies are setup, then deploy to your Heroku application.
